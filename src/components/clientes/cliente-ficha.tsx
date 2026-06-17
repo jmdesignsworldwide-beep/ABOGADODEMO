@@ -22,7 +22,6 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Stagger, StaggerItem } from "@/components/ui/stagger";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { useDetail } from "@/components/ui/detail-modal";
 import { ClienteFormModal } from "./cliente-form-modal";
 import { deleteCliente } from "@/app/(app)/clientes/actions";
 import type { ClienteFicha as Ficha } from "@/lib/db/clientes";
@@ -35,7 +34,6 @@ import {
 
 export function ClienteFicha({ ficha }: { ficha: Ficha }) {
   const router = useRouter();
-  const { open } = useDetail();
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -139,25 +137,8 @@ export function ClienteFicha({ ficha }: { ficha: Ficha }) {
             <Stagger className="space-y-3">
               {ficha.casos.map((caso) => (
                 <StaggerItem key={caso.id}>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      open({
-                        kind: "caso",
-                        eyebrow: CASO_TIPO_LABEL[caso.tipo],
-                        title: caso.titulo,
-                        subtitle: caso.parte_contraria ? `Parte contraria: ${caso.parte_contraria}` : undefined,
-                        accent: "gold",
-                        cta: "Abrir caso",
-                        meta: [
-                          { label: "Estado", value: CASO_ESTADO_LABEL[caso.estado] },
-                          { label: "Avance", value: `${caso.avance}%` },
-                          { label: "Abogado", value: caso.abogado ?? "—" },
-                          { label: "Expediente", value: caso.expediente?.numero ?? "Sin expediente" },
-                        ],
-                        note: caso.descripcion ?? undefined,
-                      })
-                    }
+                  <Link
+                    href={`/casos/${caso.id}`}
                     className="block w-full rounded-2xl glass p-5 text-left shadow-layered transition-shadow duration-300 hover:glow-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -174,7 +155,7 @@ export function ClienteFicha({ ficha }: { ficha: Ficha }) {
                     <div className="mt-3">
                       <ProgressBar value={caso.avance} showValue label="Avance" />
                     </div>
-                  </button>
+                  </Link>
                 </StaggerItem>
               ))}
             </Stagger>

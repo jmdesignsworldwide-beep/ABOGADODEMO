@@ -21,6 +21,17 @@ export async function getClientes(): Promise<ClienteConConteo[]> {
   });
 }
 
+/** Lista mínima (id + nombre) para selects de formularios. */
+export async function getClientesMin(): Promise<Pick<Cliente, "id" | "nombre">[]> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("clientes")
+    .select("id, nombre")
+    .order("nombre", { ascending: true });
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
 export type ClienteFicha = Cliente & {
   casos: (Caso & { expediente: Pick<Expediente, "id" | "numero"> | null })[];
 };
@@ -37,7 +48,8 @@ export async function getClienteById(id: string): Promise<ClienteFicha | null> {
   if (!data) return null;
 
   const { casos, ...cliente } = data as Cliente & {
-    casos: (Caso & { expedientes: Pick<Expediente, "id" | "numero">[] })[];
+    // expedientes llega como objeto (relación uno-a-uno), no como array.
+    casos: (Caso & { expedientes: Pick<Expediente, "id" | "numero"> | null })[];
   };
 
   return {
@@ -45,7 +57,7 @@ export async function getClienteById(id: string): Promise<ClienteFicha | null> {
     casos: (casos ?? [])
       .map(({ expedientes, ...caso }) => ({
         ...caso,
-        expediente: expedientes?.[0] ?? null,
+        expediente: expedientes ?? null,
       }))
       .sort((a, b) => b.created_at.localeCompare(a.created_at)),
   };
