@@ -31,6 +31,17 @@ export async function getCasos(): Promise<CasoConRelaciones[]> {
   return (data as Row[] | null ?? []).map(shape);
 }
 
+/** Lista mínima (id + título) para selects de formularios. */
+export async function getCasosMin(): Promise<Pick<Caso, "id" | "titulo">[]> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("casos")
+    .select("id, titulo")
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
 export async function getCasoById(id: string): Promise<CasoConRelaciones | null> {
   const supabase = createAdminClient();
   const { data, error } = await supabase

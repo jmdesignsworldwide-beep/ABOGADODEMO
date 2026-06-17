@@ -7,8 +7,10 @@ import {
   ArrowLeft,
   ArrowUpRight,
   Building2,
+  CalendarClock,
   Gavel,
   Pencil,
+  Plus,
   Scale,
   Trash2,
   User,
@@ -18,11 +20,17 @@ import { PremiumButton } from "@/components/ui/premium-button";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { CasoFormModal } from "./caso-form-modal";
+import { AudienciaCard } from "@/components/agenda/audiencia-card";
+import { AudienciaDetalleModal } from "@/components/agenda/audiencia-detalle-modal";
+import { AudienciaFormModal } from "@/components/agenda/audiencia-form-modal";
 import { deleteCaso } from "@/app/(app)/casos/actions";
+import { deleteAudiencia } from "@/app/(app)/agenda/actions";
 import {
   CASO_ESTADO_LABEL,
   CASO_ESTADO_STYLE,
   CASO_TIPO_LABEL,
+  type Audiencia,
+  type AudienciaConCaso,
   type CasoConRelaciones,
   type Cliente,
 } from "@/lib/db/types";
@@ -30,13 +38,33 @@ import {
 export function CasoDetalle({
   caso,
   clientes,
+  audiencias,
+  nowISO,
 }: {
   caso: CasoConRelaciones;
   clientes: Pick<Cliente, "id" | "nombre">[];
+  audiencias: Audiencia[];
+  nowISO: string;
 }) {
   const router = useRouter();
+  const now = new Date(nowISO);
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [selectedAud, setSelectedAud] = useState<AudienciaConCaso | null>(null);
+  const [creatingAud, setCreatingAud] = useState(false);
+  const [editingAud, setEditingAud] = useState<AudienciaConCaso | null>(null);
+  const [deletingAud, setDeletingAud] = useState<AudienciaConCaso | null>(null);
+
+  // Adjunta la info básica de este caso a cada audiencia (para los modales).
+  const casoMini = {
+    id: caso.id,
+    titulo: caso.titulo,
+    tipo: caso.tipo,
+    estado: caso.estado,
+    cliente: caso.cliente ? { id: caso.cliente.id, nombre: caso.cliente.nombre } : null,
+  };
+  const audienciasConCaso: AudienciaConCaso[] = audiencias.map((a) => ({ ...a, caso: casoMini }));
+  const casoOpt = [{ id: caso.id, titulo: caso.titulo }];
 
   return (
     <div className="space-y-6">
@@ -151,16 +179,43 @@ export function CasoDetalle({
             )}
           </div>
 
+          {/* Audiencias y citas del caso */}
+          <div className="rounded-2xl glass p-5 shadow-layered">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="flex items-center gap-2 font-display text-lg font-semibold text-foreground">
+                <CalendarClock className="h-5 w-5 text-gold" /> Agenda
+              </h3>
+              <button
+                type="button"
+                onClick={() => setCreatingAud(true)}
+                className="inline-flex items-center gap-1 text-sm font-medium text-gold transition-opacity hover:opacity-80"
+              >
+                <Plus className="h-4 w-4" /> Agendar
+              </button>
+            </div>
+            {audienciasConCaso.length === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">
+                Sin audiencias ni citas para este caso.
+              </p>
+            ) : (
+              <div className="mt-4 space-y-3">
+                {audienciasConCaso.map((a) => (
+                  <AudienciaCard key={a.id} audiencia={a} now={now} onClick={() => setSelectedAud(a)} />
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="rounded-2xl border border-dashed border-border p-5 text-sm text-muted-foreground">
             <p className="flex items-center gap-2 font-medium text-foreground">
-              <Scale className="h-4 w-4" /> Documentos y audiencias
+              <Scale className="h-4 w-4" /> Documentos
             </p>
             <p className="mt-1">Disponibles en una próxima tanda.</p>
           </div>
         </div>
       </div>
 
-      {/* Modales */}
+      {/* Modales del caso */}
       {editing && <CasoFormModal open onClose={() => setEditing(false)} clientes={clientes} caso={caso} />}
       <ConfirmDialog
         open={deleting}
@@ -171,6 +226,31 @@ export function CasoDetalle({
         onConfirm={async () => {
           const res = await deleteCaso(caso.id);
           if (res.ok) router.push("/casos");
+          return res;
+        }}
+      />
+
+      {/* Modales de agenda */}
+      <AudienciaDetalleModal
+        audiencia={selectedAud}
+        now={now}
+        open={Boolean(selectedAud)}
+        onClose={() => setSelectedAud(null)}
+        onEdit={() => { setEditingAud(selectedAud); setSelectedAud(null); }}
+        onDelete={() => { setDeletingAud(selectedAud); setSelectedAud(null); }}
+      />
+      <AudienciaFormModal open={creatingAud} onClose={() => setCreatingAud(false)} casos={casoOpt} defaultCasoId={caso.id} />
+      {editingAud && <AudienciaFormModal open onClose={() => setEditingAud(null)} casos={casoOpt} audiencia={editingAud} />}
+      <ConfirmDialog
+        open={Boolean(deletingAud)}
+        onClose={() => setDeletingAud(null)}
+        title="Eliminar de la agenda"
+        description={`Se eliminará “${deletingAud?.titulo ?? ""}”. Esta acción no se puede deshacer.`}
+        confirmLabel="Sí, eliminar"
+        onConfirm={async () => {
+          if (!deletingAud) return { ok: false, error: "Sin selección" };
+          const res = await deleteAudiencia(deletingAud.id);
+          if (res.ok) router.refresh();
           return res;
         }}
       />

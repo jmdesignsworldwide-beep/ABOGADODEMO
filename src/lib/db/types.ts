@@ -60,10 +60,39 @@ export interface Expediente {
   updated_at: string;
 }
 
+export type AudienciaTipo = "audiencia" | "cita";
+export type AudienciaEstado =
+  | "programada"
+  | "confirmada"
+  | "realizada"
+  | "cancelada"
+  | "aplazada";
+
+export interface Audiencia {
+  id: string;
+  caso_id: string;
+  tipo: AudienciaTipo;
+  titulo: string;
+  fecha: string; // YYYY-MM-DD
+  hora: string | null; // HH:MM:SS
+  lugar: string | null;
+  estado: AudienciaEstado;
+  notas: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type AudienciaConCaso = Audiencia & {
+  caso: (Pick<Caso, "id" | "titulo" | "tipo" | "estado"> & {
+    cliente: Pick<Cliente, "id" | "nombre"> | null;
+  }) | null;
+};
+
 /* Entradas para crear/editar (sin campos gestionados por la BD) */
 export type ClienteInput = Omit<Cliente, "id" | "created_at" | "updated_at">;
 export type CasoInput = Omit<Caso, "id" | "created_at" | "updated_at">;
 export type ExpedienteInput = Omit<Expediente, "id" | "created_at" | "updated_at">;
+export type AudienciaInput = Omit<Audiencia, "id" | "created_at" | "updated_at">;
 
 /* Tipos enriquecidos para vistas */
 export type ClienteConConteo = Cliente & { casosCount: number };
@@ -115,4 +144,25 @@ export const CASO_ESTADO_STYLE: Record<CasoEstado, string> = {
   suspendido: "bg-[var(--critical-soft)] text-critical",
   cerrado: "bg-emerald-500/15 text-emerald-500",
   archivado: "bg-muted text-muted-foreground",
+};
+
+export const AUDIENCIA_TIPO_LABEL: Record<AudienciaTipo, string> = {
+  audiencia: "Audiencia",
+  cita: "Cita",
+};
+
+export const AUDIENCIA_ESTADO_LABEL: Record<AudienciaEstado, string> = {
+  programada: "Programada",
+  confirmada: "Confirmada",
+  realizada: "Realizada",
+  cancelada: "Cancelada",
+  aplazada: "Aplazada",
+};
+
+export const AUDIENCIA_ESTADO_STYLE: Record<AudienciaEstado, string> = {
+  programada: "bg-[color-mix(in_srgb,var(--navy)_18%,transparent)] text-foreground",
+  confirmada: "bg-[color-mix(in_srgb,var(--gold)_18%,transparent)] text-gold",
+  realizada: "bg-emerald-500/15 text-emerald-500",
+  cancelada: "bg-[var(--critical-soft)] text-critical",
+  aplazada: "bg-muted text-muted-foreground",
 };
