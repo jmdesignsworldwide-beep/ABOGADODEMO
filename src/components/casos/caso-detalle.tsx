@@ -94,16 +94,31 @@ export function CasoDetalle({
 
           {/* Expediente vinculado */}
           <div className="rounded-2xl glass p-5 shadow-layered">
-            <h3 className="flex items-center gap-2 font-display text-lg font-semibold text-foreground">
-              <Gavel className="h-5 w-5 text-gold" /> Expediente
-            </h3>
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="flex items-center gap-2 font-display text-lg font-semibold text-foreground">
+                <Gavel className="h-5 w-5 text-gold" /> Expediente
+              </h3>
+              {caso.expediente && (
+                <Link
+                  href={`/expedientes/${caso.expediente.id}`}
+                  className="inline-flex items-center gap-1 text-sm font-medium text-gold transition-opacity hover:opacity-80"
+                >
+                  Ver expediente <ArrowUpRight className="h-4 w-4" />
+                </Link>
+              )}
+            </div>
             {caso.expediente ? (
-              <dl className="mt-4 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2">
-                <Cell label="Número" value={caso.expediente.numero} tabular />
-                <Cell label="Estado procesal" value={caso.expediente.estado_procesal ?? "—"} />
-                <Cell label="Tribunal" value={caso.expediente.tribunal ?? "—"} />
-                <Cell label="Juez" value={caso.expediente.juez ?? "—"} />
-              </dl>
+              <Link
+                href={`/expedientes/${caso.expediente.id}`}
+                className="mt-4 block rounded-xl transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              >
+                <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2">
+                  <Cell label="Número" value={caso.expediente.numero} tabular />
+                  <Cell label="Estado procesal" value={caso.expediente.estado_procesal ?? "—"} />
+                  <Cell label="Tribunal" value={caso.expediente.tribunal ?? "—"} />
+                  <Cell label="Juez" value={caso.expediente.juez ?? "—"} />
+                </dl>
+              </Link>
             ) : (
               <p className="mt-3 text-sm text-muted-foreground">
                 Este caso aún no tiene expediente. Podrás crearlo desde el módulo de Expedientes.

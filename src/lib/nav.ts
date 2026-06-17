@@ -1,5 +1,6 @@
 import {
   Calendar,
+  FileStack,
   FileText,
   Gavel,
   LayoutDashboard,
@@ -25,6 +26,7 @@ export const navItems: NavItem[] = [
   { label: "Panel", href: "/panel", icon: LayoutDashboard },
   { label: "Clientes", href: "/clientes", icon: Users },
   { label: "Casos", href: "/casos", icon: Scale },
+  { label: "Expedientes", href: "/expedientes", icon: FileStack },
   { label: "Audiencias", href: "/audiencias", icon: Gavel, soon: true },
   { label: "Agenda", href: "/agenda", icon: Calendar, soon: true },
   { label: "Documentos", href: "/documentos", icon: FileText, soon: true },
