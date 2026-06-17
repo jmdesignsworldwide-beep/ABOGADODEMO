@@ -1,26 +1,257 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────────────────────────────────
+   JM Design — Gestión Legal · Sistema de diseño
+   Tokens de color centralizados + dos temas premium (oscuro / claro).
+   Cambia un valor aquí y todo el sistema lo hereda.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* next-themes pone class="dark" o "light" en <html>. Activamos el variant. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ===========================================================================
+   TEMA CLARO — crema cálido elegante (NO un blanco plano), marino de acento,
+   bronce dorado para detalles. Es el tema por defecto de :root.
+   =========================================================================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Superficies cálidas */
+  --background: #f3ece0; /* crema cálido */
+  --surface: #faf5ec; /* tarjetas / paneles */
+  --surface-2: #f6efe2; /* superficie secundaria */
+  --foreground: #1c2436; /* texto principal (marino casi negro) */
+  --muted: #ece3d3; /* fondos sutiles */
+  --muted-foreground: #6f6a5e; /* texto secundario cálido */
+  --border: rgba(40, 52, 78, 0.12);
+
+  /* Marca: marino profundo (acento principal) */
+  --navy: #1b3a5b;
+  --navy-strong: #14304d;
+  --navy-foreground: #f7f2e7;
+
+  /* Marca: dorado / bronce (más profundo en claro para que contraste) */
+  --gold: #a9842b;
+  --gold-bright: #c19a33;
+  --gold-foreground: #2a2008;
+
+  /* Cristal (glassmorphism) */
+  --glass: rgba(255, 252, 245, 0.72);
+  --glass-border: rgba(40, 52, 78, 0.14);
+
+  /* Aurora (mezcla marino + dorado, muy sutil sobre crema) */
+  --aurora-1: rgba(27, 58, 91, 0.20);
+  --aurora-2: rgba(169, 132, 43, 0.18);
+  --aurora-3: rgba(27, 58, 91, 0.12);
+
+  /* Anillos / glow */
+  --ring: rgba(169, 132, 43, 0.55);
+
+  /* Sombras en capas (suaves en claro) */
+  --shadow-layered:
+    0 1px 2px rgba(28, 36, 54, 0.06),
+    0 4px 12px rgba(28, 36, 54, 0.08),
+    0 16px 40px rgba(28, 36, 54, 0.08);
+  --glow-gold: 0 0 0 1px rgba(169, 132, 43, 0.30), 0 0 24px rgba(193, 154, 51, 0.28);
+  --glow-navy: 0 0 0 1px rgba(27, 58, 91, 0.30), 0 0 24px rgba(27, 58, 91, 0.22);
 }
 
+/* ===========================================================================
+   TEMA OSCURO — near-black con tinte marino, dorado que brilla.
+   =========================================================================== */
+.dark {
+  --background: #060911; /* near-black marino */
+  --surface: #0b1120; /* tarjetas / paneles */
+  --surface-2: #0e1424; /* superficie secundaria */
+  --foreground: #e7eaf3;
+  --muted: #131b2e;
+  --muted-foreground: #9aa3ba;
+  --border: rgba(176, 192, 228, 0.10);
+
+  --navy: #2f6098; /* marino luminoso para que resalte en lo oscuro */
+  --navy-strong: #224a78;
+  --navy-foreground: #f4f8ff;
+
+  --gold: #d4af37; /* dorado que brilla */
+  --gold-bright: #f0d27a;
+  --gold-foreground: #1a1404;
+
+  --glass: rgba(15, 22, 40, 0.55);
+  --glass-border: rgba(176, 192, 228, 0.12);
+
+  --aurora-1: rgba(34, 74, 120, 0.40);
+  --aurora-2: rgba(212, 175, 55, 0.22);
+  --aurora-3: rgba(47, 96, 152, 0.28);
+
+  --ring: rgba(212, 175, 55, 0.55);
+
+  --shadow-layered:
+    0 1px 2px rgba(0, 0, 0, 0.40),
+    0 6px 18px rgba(0, 0, 0, 0.45),
+    0 22px 60px rgba(0, 0, 0, 0.55);
+  --glow-gold: 0 0 0 1px rgba(212, 175, 55, 0.35), 0 0 28px rgba(212, 175, 55, 0.35);
+  --glow-navy: 0 0 0 1px rgba(47, 96, 152, 0.40), 0 0 28px rgba(47, 96, 152, 0.40);
+}
+
+/* ===========================================================================
+   Mapeo de tokens → utilidades Tailwind (bg-background, text-gold, etc.)
+   =========================================================================== */
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+
+  --color-navy: var(--navy);
+  --color-navy-strong: var(--navy-strong);
+  --color-navy-foreground: var(--navy-foreground);
+
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-gold-foreground: var(--gold-foreground);
+
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ===========================================================================
+   Base
+   =========================================================================== */
+* {
+  border-color: var(--border);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Números alineados (tabular) para KPIs, montos, fechas */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--gold-foreground);
+}
+
+/* Scrollbar discreta y premium */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+  background-clip: content-box;
+}
+
+/* ===========================================================================
+   Utilidades premium reutilizables
+   =========================================================================== */
+
+/* Cristal sutil con desenfoque */
+@utility glass {
+  background: var(--glass);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid var(--glass-border);
+}
+
+/* Sombra en capas */
+@utility shadow-layered {
+  box-shadow: var(--shadow-layered);
+}
+
+/* Glows para elementos activos */
+@utility glow-gold {
+  box-shadow: var(--glow-gold);
+}
+@utility glow-navy {
+  box-shadow: var(--glow-navy);
+}
+
+/* Texto con degradado dorado (para el wordmark y acentos) */
+@utility text-gold-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--gold-bright) 0%,
+    var(--gold) 55%,
+    var(--gold-bright) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Hairline dorado decorativo */
+@utility rule-gold {
+  background: linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
+}
+
+/* ===========================================================================
+   Aurora — fondo que respira (lento, sutil). Reutilizable.
+   =========================================================================== */
+@keyframes aurora-drift-1 {
+  0%, 100% { transform: translate3d(-8%, -6%, 0) scale(1); }
+  50%      { transform: translate3d(6%, 8%, 0) scale(1.15); }
+}
+@keyframes aurora-drift-2 {
+  0%, 100% { transform: translate3d(8%, 4%, 0) scale(1.1); }
+  50%      { transform: translate3d(-6%, -8%, 0) scale(0.95); }
+}
+@keyframes aurora-drift-3 {
+  0%, 100% { transform: translate3d(0%, 6%, 0) scale(1.05); }
+  50%      { transform: translate3d(4%, -6%, 0) scale(1.2); }
+}
+@keyframes aurora-breathe {
+  0%, 100% { opacity: 0.75; }
+  50%      { opacity: 1; }
+}
+
+/* Brillo del wordmark dorado al cargar */
+@keyframes gold-sheen {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Shimmer del skeleton de carga */
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+/* ===========================================================================
+   Accesibilidad — respeta prefers-reduced-motion en TODO el sistema.
+   Framer Motion también lo respeta vía useReducedMotion en los primitivos.
+   =========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
