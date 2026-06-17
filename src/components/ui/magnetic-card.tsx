@@ -10,7 +10,6 @@ import {
   useTransform,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { springSnappy } from "@/lib/motion";
 
 /**
  * MagneticCard — tarjeta premium con hover magnético.
@@ -44,8 +43,11 @@ export function MagneticCard({
   const px = useMotionValue(0);
   const py = useMotionValue(0);
 
-  const rx = useSpring(useTransform(py, [-0.5, 0.5], [6, -6]), springSnappy);
-  const ry = useSpring(useTransform(px, [-0.5, 0.5], [-6, 6]), springSnappy);
+  // Inclinación muy sutil (±2°, apenas perceptible) y spring controlado
+  // (sin rebote) para una sensación premium y sobria, no "de gelatina".
+  const tiltSpring = { stiffness: 300, damping: 40, mass: 0.8 } as const;
+  const rx = useSpring(useTransform(py, [-0.5, 0.5], [2, -2]), tiltSpring);
+  const ry = useSpring(useTransform(px, [-0.5, 0.5], [-2, 2]), tiltSpring);
 
   // Brillo que sigue al cursor (todos los hooks a nivel superior).
   const sheenX = useTransform(px, [-0.5, 0.5], ["0%", "100%"]);
@@ -76,8 +78,8 @@ export function MagneticCard({
           ? { rotateX: rx, rotateY: ry, transformPerspective: 1000 }
           : undefined
       }
-      whileHover={reduced ? undefined : { scale: 1.02, y: -4 }}
-      transition={springSnappy}
+      whileHover={reduced ? undefined : { scale: 1.008, y: -3 }}
+      transition={tiltSpring}
       className={cn(
         "group/card relative overflow-hidden rounded-2xl glass shadow-layered",
         "transition-shadow duration-300",
