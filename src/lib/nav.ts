@@ -23,7 +23,7 @@ export type NavItem = {
  */
 export const navItems: NavItem[] = [
   { label: "Panel", href: "/panel", icon: LayoutDashboard },
-  { label: "Clientes", href: "/clientes", icon: Users, soon: true },
+  { label: "Clientes", href: "/clientes", icon: Users },
   { label: "Casos", href: "/casos", icon: Scale, soon: true },
   { label: "Audiencias", href: "/audiencias", icon: Gavel, soon: true },
   { label: "Agenda", href: "/agenda", icon: Calendar, soon: true },
