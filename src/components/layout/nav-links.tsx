@@ -3,26 +3,32 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { navItems } from "@/lib/nav";
+import { navItems, type NavItem } from "@/lib/nav";
+
+const ADMIN_ITEM: NavItem = { label: "Gestión de usuarios", href: "/configuracion", icon: Settings };
 
 /**
  * Lista de enlaces de navegación con indicador de activo animado
  * (pill deslizante con layoutId compartido). Reutilizada por el sidebar
- * de escritorio y el menú móvil.
+ * de escritorio y el menú móvil. "Gestión de usuarios" solo se muestra a admin.
  */
 export function NavLinks({
   onNavigate,
   layoutId = "nav-active",
+  isAdmin = false,
 }: {
   onNavigate?: () => void;
   layoutId?: string;
+  isAdmin?: boolean;
 }) {
   const pathname = usePathname();
+  const items = isAdmin ? [...navItems, ADMIN_ITEM] : navItems;
 
   return (
     <nav className="flex flex-col gap-1">
-      {navItems.map((item) => {
+      {items.map((item) => {
         const active = pathname === item.href || pathname.startsWith(item.href + "/");
         const Icon = item.icon;
         const disabled = item.soon;

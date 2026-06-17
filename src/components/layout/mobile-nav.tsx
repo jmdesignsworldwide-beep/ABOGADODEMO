@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { LogOut, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { NavLinks } from "./nav-links";
+import { LogoutButton } from "@/components/auth/logout-button";
 
 /**
  * Menú de navegación móvil: botón hamburguesa + drawer deslizante con overlay.
@@ -17,7 +17,7 @@ import { NavLinks } from "./nav-links";
  *  - Respeta reduced-motion (sin slide, solo fade).
  *  - Solo visible en móvil/tablet (lg:hidden).
  */
-export function MobileNav() {
+export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const reduced = useReducedMotion();
@@ -89,19 +89,12 @@ export function MobileNav() {
               <div className="mx-4 h-px rule-gold opacity-50" />
 
               <div className="flex-1 overflow-y-auto px-3 py-4">
-                <NavLinks onNavigate={() => setOpen(false)} layoutId="nav-active-mobile" />
+                <NavLinks onNavigate={() => setOpen(false)} layoutId="nav-active-mobile" isAdmin={isAdmin} />
               </div>
 
               <div className="mx-4 h-px bg-border" />
               <div className="p-3">
-                <Link
-                  href="/login"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <LogOut className="h-[18px] w-[18px]" strokeWidth={1.75} />
-                  Cerrar sesión
-                </Link>
+                <LogoutButton />
               </div>
             </motion.div>
           </>

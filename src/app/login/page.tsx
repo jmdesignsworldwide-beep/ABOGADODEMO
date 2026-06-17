@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Logo } from "@/components/brand/logo";
 import { LoginForm } from "@/components/auth/login-form";
 import { LoginReveal } from "@/components/auth/login-reveal";
+import { accesoVencido, getCurrentPerfil } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Acceso · JM Design — Gestión Legal",
 };
 
-export default function LoginPage() {
+export const dynamic = "force-dynamic";
+
+export default async function LoginPage() {
+  // Si ya hay sesión válida, entra directo al panel.
+  const perfil = await getCurrentPerfil();
+  if (perfil && perfil.activo && !accesoVencido(perfil)) redirect("/panel");
   return (
     <div className="relative grid min-h-dvh place-items-center overflow-hidden px-4 py-10">
       <AuroraBackground interactive />
