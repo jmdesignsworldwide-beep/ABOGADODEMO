@@ -23,6 +23,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Stagger, StaggerItem } from "@/components/ui/stagger";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ClienteFormModal } from "./cliente-form-modal";
+import { DocumentosSection } from "@/components/documentos/documentos-section";
 import { deleteCliente } from "@/app/(app)/clientes/actions";
 import type { ClienteFicha as Ficha } from "@/lib/db/clientes";
 import {
@@ -30,9 +31,10 @@ import {
   CASO_ESTADO_STYLE,
   CASO_TIPO_LABEL,
   CLIENTE_TIPO_LABEL,
+  type DocumentoConVinculos,
 } from "@/lib/db/types";
 
-export function ClienteFicha({ ficha }: { ficha: Ficha }) {
+export function ClienteFicha({ ficha, documentos }: { ficha: Ficha; documentos: DocumentoConVinculos[] }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -111,11 +113,7 @@ export function ClienteFicha({ ficha }: { ficha: Ficha }) {
             </div>
           )}
 
-          {/* Próximamente */}
-          <div className="rounded-2xl border border-dashed border-border p-5 text-sm text-muted-foreground">
-            <p className="font-medium text-foreground">Documentos y facturas</p>
-            <p className="mt-1">Disponibles en una próxima tanda.</p>
-          </div>
+          <DocumentosSection documentos={documentos} clienteId={ficha.id} contextoLabel="este cliente" />
         </div>
 
         {/* Casos del cliente */}

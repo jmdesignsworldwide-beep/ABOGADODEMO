@@ -11,7 +11,6 @@ import {
   Gavel,
   Pencil,
   Plus,
-  Scale,
   Trash2,
   User,
 } from "lucide-react";
@@ -23,6 +22,7 @@ import { CasoFormModal } from "./caso-form-modal";
 import { AudienciaCard } from "@/components/agenda/audiencia-card";
 import { AudienciaDetalleModal } from "@/components/agenda/audiencia-detalle-modal";
 import { AudienciaFormModal } from "@/components/agenda/audiencia-form-modal";
+import { DocumentosSection } from "@/components/documentos/documentos-section";
 import { deleteCaso } from "@/app/(app)/casos/actions";
 import { deleteAudiencia } from "@/app/(app)/agenda/actions";
 import {
@@ -33,17 +33,20 @@ import {
   type AudienciaConCaso,
   type CasoConRelaciones,
   type Cliente,
+  type DocumentoConVinculos,
 } from "@/lib/db/types";
 
 export function CasoDetalle({
   caso,
   clientes,
   audiencias,
+  documentos,
   nowISO,
 }: {
   caso: CasoConRelaciones;
   clientes: Pick<Cliente, "id" | "nombre">[];
   audiencias: Audiencia[];
+  documentos: DocumentoConVinculos[];
   nowISO: string;
 }) {
   const router = useRouter();
@@ -206,12 +209,7 @@ export function CasoDetalle({
             )}
           </div>
 
-          <div className="rounded-2xl border border-dashed border-border p-5 text-sm text-muted-foreground">
-            <p className="flex items-center gap-2 font-medium text-foreground">
-              <Scale className="h-4 w-4" /> Documentos
-            </p>
-            <p className="mt-1">Disponibles en una próxima tanda.</p>
-          </div>
+          <DocumentosSection documentos={documentos} casoId={caso.id} contextoLabel="este caso" />
         </div>
       </div>
 

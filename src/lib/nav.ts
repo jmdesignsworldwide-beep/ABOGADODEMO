@@ -27,6 +27,6 @@ export const navItems: NavItem[] = [
   { label: "Casos", href: "/casos", icon: Scale },
   { label: "Expedientes", href: "/expedientes", icon: FileStack },
   { label: "Agenda", href: "/agenda", icon: Calendar },
-  { label: "Documentos", href: "/documentos", icon: FileText, soon: true },
+  { label: "Documentos", href: "/documentos", icon: FileText },
   { label: "Facturación", href: "/facturacion", icon: Receipt, soon: true },
 ];

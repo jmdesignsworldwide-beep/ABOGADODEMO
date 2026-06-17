@@ -88,6 +88,34 @@ export type AudienciaConCaso = Audiencia & {
   }) | null;
 };
 
+export type TipoDocumentoLegal =
+  | "contrato"
+  | "sentencia"
+  | "poder"
+  | "prueba"
+  | "escrito"
+  | "factura"
+  | "identificacion"
+  | "otro";
+
+export interface Documento {
+  id: string;
+  nombre: string;
+  tipo_documento: TipoDocumentoLegal;
+  storage_path: string;
+  mime_type: string | null;
+  tamano: number | null;
+  caso_id: string | null;
+  cliente_id: string | null;
+  subido_por: string | null;
+  created_at: string;
+}
+
+export type DocumentoConVinculos = Documento & {
+  caso: Pick<Caso, "id" | "titulo"> | null;
+  cliente: Pick<Cliente, "id" | "nombre"> | null;
+};
+
 /* Entradas para crear/editar (sin campos gestionados por la BD) */
 export type ClienteInput = Omit<Cliente, "id" | "created_at" | "updated_at">;
 export type CasoInput = Omit<Caso, "id" | "created_at" | "updated_at">;
@@ -165,4 +193,15 @@ export const AUDIENCIA_ESTADO_STYLE: Record<AudienciaEstado, string> = {
   realizada: "bg-emerald-500/15 text-emerald-500",
   cancelada: "bg-[var(--critical-soft)] text-critical",
   aplazada: "bg-muted text-muted-foreground",
+};
+
+export const TIPO_DOCUMENTO_LEGAL_LABEL: Record<TipoDocumentoLegal, string> = {
+  contrato: "Contrato",
+  sentencia: "Sentencia",
+  poder: "Poder",
+  prueba: "Prueba",
+  escrito: "Escrito",
+  factura: "Factura",
+  identificacion: "Identificación",
+  otro: "Otro",
 };
