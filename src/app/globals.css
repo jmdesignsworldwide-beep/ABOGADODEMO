@@ -45,6 +45,12 @@
   /* Anillos / glow */
   --ring: rgba(169, 132, 43, 0.55);
 
+  /* Gravedad — crítico (ámbar/coral cálido, profundo para contraste en crema) */
+  --critical: #b45309;
+  --critical-bright: #d97706;
+  --critical-soft: rgba(217, 119, 6, 0.12);
+  --critical-glow: rgba(217, 119, 6, 0.30);
+
   /* Sombras en capas (suaves en claro) */
   --shadow-layered:
     0 1px 2px rgba(28, 36, 54, 0.06),
@@ -83,6 +89,12 @@
 
   --ring: rgba(212, 175, 55, 0.55);
 
+  /* Gravedad — crítico (ámbar/coral que brilla en lo oscuro) */
+  --critical: #f0a55e;
+  --critical-bright: #f6b87a;
+  --critical-soft: rgba(240, 165, 94, 0.14);
+  --critical-glow: rgba(240, 165, 94, 0.40);
+
   --shadow-layered:
     0 1px 2px rgba(0, 0, 0, 0.40),
     0 6px 18px rgba(0, 0, 0, 0.45),
@@ -110,6 +122,9 @@
   --color-gold: var(--gold);
   --color-gold-bright: var(--gold-bright);
   --color-gold-foreground: var(--gold-foreground);
+
+  --color-critical: var(--critical);
+  --color-critical-bright: var(--critical-bright);
 
   --color-ring: var(--ring);
 
@@ -246,6 +261,15 @@ body {
 /* Shimmer del skeleton de carga */
 @keyframes shimmer {
   100% { transform: translateX(100%); }
+}
+
+/* Latido suave (glow que respira) para gravedad crítica.
+   Lento y sutil — premium, NO un parpadeo nervioso. Se aplica a una capa de
+   glow para no pelear con la sombra de la tarjeta. Reducido por
+   prefers-reduced-motion (la regla global congela la animación). */
+@keyframes breathe-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
 }
 
 /* ===========================================================================

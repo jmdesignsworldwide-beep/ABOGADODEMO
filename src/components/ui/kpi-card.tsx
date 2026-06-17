@@ -20,6 +20,7 @@ export function KpiCard({
   icon: Icon,
   trend,
   className,
+  onClick,
 }: {
   label: string;
   value: number;
@@ -30,11 +31,12 @@ export function KpiCard({
   /** Variación porcentual; positivo = sube (verde), negativo = baja. */
   trend?: number;
   className?: string;
+  onClick?: () => void;
 }) {
   const up = (trend ?? 0) >= 0;
 
   return (
-    <MagneticCard glow className={cn("p-5", className)}>
+    <MagneticCard glow onClick={onClick} className={cn("p-5", className)}>
       <div className="flex items-start justify-between gap-3">
         <span className="text-sm font-medium text-muted-foreground">{label}</span>
         {Icon && (
