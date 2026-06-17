@@ -1,17 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Cormorant_Garamond } from "next/font/google";
+import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 
+// Texto de interfaz, datos y números (con tabular-nums donde aplica).
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
 });
 
-// Serif elegante para el wordmark y títulos (sensación de bufete premium).
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
+// Display serif moderna y elegante para el wordmark, títulos y KPIs.
+// Fraunces aporta personalidad premium con buen peso (600–700).
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
   weight: ["500", "600", "700"],
   display: "swap",
@@ -39,7 +41,7 @@ export default function RootLayout({
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${inter.variable} ${cormorant.variable} h-full antialiased`}
+      className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full">
         <ThemeProvider

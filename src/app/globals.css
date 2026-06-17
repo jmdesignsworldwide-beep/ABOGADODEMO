@@ -114,7 +114,7 @@
   --color-ring: var(--ring);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, "Times New Roman", serif;
 }
 
 /* ===========================================================================
@@ -140,6 +140,13 @@ body {
 .tabular {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
+}
+
+/* Display (Fraunces): tracking ligeramente cerrado y optical-sizing para
+   que los títulos grandes luzcan con presencia premium. */
+.font-display {
+  font-optical-sizing: auto;
+  letter-spacing: -0.015em;
 }
 
 ::selection {
