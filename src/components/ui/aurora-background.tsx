@@ -33,8 +33,9 @@ export function AuroraBackground({
         className,
       )}
     >
-      {/* Base */}
-      <div className="absolute inset-0 bg-background" />
+      {/* Base — color sólido en oscuro, degradado cálido sutil en claro
+          (vía el token --aurora-base, que da dimensión sin tocar el oscuro). */}
+      <div className="absolute inset-0" style={{ background: "var(--aurora-base)" }} />
 
       {/* Manchas de aurora */}
       <div

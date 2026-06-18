@@ -14,33 +14,38 @@
    bronce dorado para detalles. Es el tema por defecto de :root.
    =========================================================================== */
 :root {
-  /* Superficies cálidas */
-  --background: #f3ece0; /* crema cálido */
-  --surface: #faf5ec; /* tarjetas / paneles */
-  --surface-2: #f6efe2; /* superficie secundaria */
-  --foreground: #1c2436; /* texto principal (marino casi negro) */
-  --muted: #ece3d3; /* fondos sutiles */
-  --muted-foreground: #6f6a5e; /* texto secundario cálido */
-  --border: rgba(40, 52, 78, 0.12);
+  /* Superficies cálidas con profundidad (crema, nunca blanco plano) */
+  --background: #f1e8d9; /* crema cálido base */
+  --surface: #fcf8f0; /* tarjetas / paneles: claramente elevadas sobre el fondo */
+  --surface-2: #f5ede0; /* superficie secundaria */
+  --foreground: #19223a; /* texto principal (marino casi negro, alto contraste) */
+  --muted: #ebe0cf; /* fondos sutiles */
+  --muted-foreground: #585341; /* texto secundario — más nítido para legibilidad */
+  --border: rgba(40, 52, 78, 0.10);
 
   /* Marca: marino profundo (acento principal) */
   --navy: #1b3a5b;
   --navy-strong: #14304d;
   --navy-foreground: #f7f2e7;
 
-  /* Marca: dorado / bronce (más profundo en claro para que contraste) */
-  --gold: #a9842b;
-  --gold-bright: #c19a33;
+  /* Marca: dorado / bronce que brilla en claro (acento de lujo) */
+  --gold: #a07d28;
+  --gold-bright: #c4992f;
   --gold-foreground: #2a2008;
 
-  /* Cristal (glassmorphism) */
-  --glass: rgba(255, 252, 245, 0.72);
-  --glass-border: rgba(40, 52, 78, 0.14);
+  /* Cristal (glassmorphism suave, coherente con el oscuro) */
+  --glass: rgba(252, 248, 240, 0.64);
+  --glass-border: rgba(255, 253, 248, 0.65);
 
-  /* Aurora (mezcla marino + dorado, muy sutil sobre crema) */
-  --aurora-1: rgba(27, 58, 91, 0.20);
-  --aurora-2: rgba(169, 132, 43, 0.18);
-  --aurora-3: rgba(27, 58, 91, 0.12);
+  /* Atmósfera de fondo: degradado cálido MUY sutil (da dimensión como la
+     aurora al oscuro). Lo usa la capa base del Aurora y el <body>. */
+  --aurora-base:
+    radial-gradient(135% 115% at 50% -15%, #faf3e6 0%, #f1e8d9 48%, #ebe0cf 100%);
+
+  /* Aurora (marino + dorado): más presencia que antes, pero elegante */
+  --aurora-1: rgba(27, 58, 91, 0.16);
+  --aurora-2: rgba(176, 137, 45, 0.20);
+  --aurora-3: rgba(193, 154, 51, 0.13);
 
   /* Anillos / glow */
   --ring: rgba(169, 132, 43, 0.55);
@@ -51,13 +56,14 @@
   --critical-soft: rgba(217, 119, 6, 0.12);
   --critical-glow: rgba(217, 119, 6, 0.30);
 
-  /* Sombras en capas (suaves en claro) */
+  /* Sombras suaves multicapa — sensación de flotación premium */
   --shadow-layered:
-    0 1px 2px rgba(28, 36, 54, 0.06),
-    0 4px 12px rgba(28, 36, 54, 0.08),
-    0 16px 40px rgba(28, 36, 54, 0.08);
-  --glow-gold: 0 0 0 1px rgba(169, 132, 43, 0.30), 0 0 24px rgba(193, 154, 51, 0.28);
-  --glow-navy: 0 0 0 1px rgba(27, 58, 91, 0.30), 0 0 24px rgba(27, 58, 91, 0.22);
+    0 1px 1.5px rgba(58, 46, 24, 0.05),
+    0 3px 6px rgba(40, 44, 64, 0.05),
+    0 9px 20px rgba(36, 48, 74, 0.07),
+    0 22px 48px rgba(36, 48, 74, 0.10);
+  --glow-gold: 0 0 0 1px rgba(164, 126, 40, 0.32), 0 0 22px rgba(196, 153, 47, 0.32), 0 4px 16px rgba(164, 126, 40, 0.18);
+  --glow-navy: 0 0 0 1px rgba(27, 58, 91, 0.28), 0 0 24px rgba(27, 58, 91, 0.20);
 }
 
 /* ===========================================================================
@@ -82,6 +88,9 @@
 
   --glass: rgba(15, 22, 40, 0.55);
   --glass-border: rgba(176, 192, 228, 0.12);
+
+  /* Capa base del Aurora (en oscuro = el near-black de siempre, sin cambios). */
+  --aurora-base: #060911;
 
   --aurora-1: rgba(34, 74, 120, 0.40);
   --aurora-2: rgba(212, 175, 55, 0.22);
@@ -149,6 +158,13 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* Tema claro: atmósfera cálida con degradado muy sutil (no blanco plano).
+   Solo afecta al claro; el oscuro mantiene su near-black intacto. */
+html:not(.dark) body {
+  background-image: var(--aurora-base);
+  background-attachment: fixed;
 }
 
 /* Números alineados (tabular) para KPIs, montos, fechas */
