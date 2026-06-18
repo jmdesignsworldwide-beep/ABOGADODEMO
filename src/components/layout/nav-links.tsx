@@ -3,11 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Settings } from "lucide-react";
+import { History, Settings, ShieldCheck, DatabaseBackup } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { navItems, type NavItem } from "@/lib/nav";
 
-const ADMIN_ITEM: NavItem = { label: "Gestión de usuarios", href: "/configuracion", icon: Settings };
+const ADMIN_ITEMS: NavItem[] = [
+  { label: "Gestión de usuarios", href: "/configuracion", icon: Settings },
+  { label: "Historial", href: "/historial", icon: History },
+  { label: "Roles y permisos", href: "/roles", icon: ShieldCheck },
+  { label: "Respaldo", href: "/respaldo", icon: DatabaseBackup },
+];
 
 /**
  * Lista de enlaces de navegación con indicador de activo animado
@@ -24,7 +29,7 @@ export function NavLinks({
   isAdmin?: boolean;
 }) {
   const pathname = usePathname();
-  const items = isAdmin ? [...navItems, ADMIN_ITEM] : navItems;
+  const items = isAdmin ? [...navItems, ...ADMIN_ITEMS] : navItems;
 
   return (
     <nav className="flex flex-col gap-1">

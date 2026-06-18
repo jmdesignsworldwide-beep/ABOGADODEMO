@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { calcularTotales, siguienteNCF } from "@/lib/facturas";
+import { logAudit } from "@/lib/audit";
 import type { FacturaEstado, FacturaInput } from "@/lib/db/types";
 
 export type ActionResult = { ok: true; id?: string } | { ok: false; error: string };
@@ -58,6 +59,7 @@ export async function crearFactura(input: FacturaInput): Promise<ActionResult> {
     .single();
 
   if (error) return { ok: false, error: error.message };
+  await logAudit("crear", "Facturación", `Emitió la factura ${numero}`);
   revalidatePath("/facturacion");
   return { ok: true, id: data.id };
 }
@@ -67,6 +69,7 @@ export async function cambiarEstadoFactura(id: string, estado: FacturaEstado): P
   const admin = createAdminClient();
   const { error } = await admin.from("facturas").update({ estado }).eq("id", id);
   if (error) return { ok: false, error: error.message };
+  await logAudit("editar", "Facturación", `Cambió el estado de una factura a "${estado}"`);
   revalidatePath("/facturacion");
   revalidatePath(`/facturacion/${id}`);
   return { ok: true, id };
@@ -76,6 +79,7 @@ export async function deleteFactura(id: string): Promise<ActionResult> {
   const admin = createAdminClient();
   const { error } = await admin.from("facturas").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };
+  await logAudit("eliminar", "Facturación", "Eliminó una factura");
   revalidatePath("/facturacion");
   return { ok: true };
 }

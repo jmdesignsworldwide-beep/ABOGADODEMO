@@ -31,13 +31,26 @@ export async function login(username: string, password: string): Promise<LoginRe
   const admin = createAdminClient();
   const { data: perfil } = await admin
     .from("perfiles")
-    .select("activo, acceso_hasta")
+    .select("activo, acceso_hasta, rol, username")
     .eq("id", data.user.id)
     .maybeSingle();
 
   if (!perfil || !perfil.activo || accesoVencido(perfil)) {
     await supabase.auth.signOut();
     redirect("/acceso-expirado");
+  }
+
+  // Registro de auditoría (directo: la sesión recién creada aún no está en cookies).
+  try {
+    await admin.from("auditoria").insert({
+      usuario: perfil.username ?? user,
+      rol: perfil.rol ?? null,
+      accion: "login",
+      modulo: "Acceso",
+      detalle: "Inició sesión en el sistema",
+    });
+  } catch {
+    /* el log nunca debe impedir el acceso */
   }
 
   redirect("/panel");

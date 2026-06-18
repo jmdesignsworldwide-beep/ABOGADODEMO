@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { logAudit } from "@/lib/audit";
 
 export type ActionResult = { ok: true; id?: string } | { ok: false; error: string };
 
@@ -31,6 +32,7 @@ export async function guardarContrato(input: {
     .single();
   if (error) return { ok: false, error: error.message };
 
+  await logAudit("crear", "Contratos", `Generó "${titulo.slice(0, 80)}"`);
   revalidatePath("/contratos");
   if (input.cliente_id) revalidatePath(`/clientes/${input.cliente_id}`);
   if (input.caso_id) revalidatePath(`/casos/${input.caso_id}`);

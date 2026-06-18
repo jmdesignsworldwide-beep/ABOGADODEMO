@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { logAudit } from "@/lib/audit";
 import type { ClienteInput } from "@/lib/db/types";
 
 export type ActionResult = { ok: true; id?: string } | { ok: false; error: string };
@@ -45,6 +46,7 @@ export async function createCliente(input: ClienteInput): Promise<ActionResult> 
     .single();
 
   if (error) return { ok: false, error: error.message };
+  await logAudit("crear", "Clientes", `Registró al cliente "${clean.nombre}"`);
   revalidatePath("/clientes");
   return { ok: true, id: data.id };
 }
@@ -57,6 +59,7 @@ export async function updateCliente(id: string, input: ClienteInput): Promise<Ac
   const { error } = await supabase.from("clientes").update(clean).eq("id", id);
 
   if (error) return { ok: false, error: error.message };
+  await logAudit("editar", "Clientes", `Actualizó los datos de "${clean.nombre}"`);
   revalidatePath("/clientes");
   revalidatePath(`/clientes/${id}`);
   return { ok: true, id };
@@ -67,6 +70,7 @@ export async function deleteCliente(id: string): Promise<ActionResult> {
   const { error } = await supabase.from("clientes").delete().eq("id", id);
 
   if (error) return { ok: false, error: error.message };
+  await logAudit("eliminar", "Clientes", "Eliminó un cliente");
   revalidatePath("/clientes");
   return { ok: true };
 }

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 import { isValidUsername, normalizeUsername, usernameToEmail } from "@/lib/username";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
@@ -60,6 +61,7 @@ export async function crearUsuario(input: {
     return { ok: false, error: perfErr.message };
   }
 
+  await logAudit("crear", "Usuarios", `Creó la cuenta de cliente "${username}"`);
   revalidatePath("/configuracion");
   return { ok: true };
 }

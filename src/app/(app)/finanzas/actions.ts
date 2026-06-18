@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { logAudit } from "@/lib/audit";
 import type { EgresoInput } from "@/lib/db/types";
 
 export type ActionResult = { ok: true; id?: string } | { ok: false; error: string };
@@ -28,6 +29,7 @@ export async function crearEgreso(input: EgresoInput): Promise<ActionResult> {
   const admin = createAdminClient();
   const { data, error } = await admin.from("egresos").insert(clean).select("id").single();
   if (error) return { ok: false, error: error.message };
+  await logAudit("crear", "Finanzas", `Registró el egreso "${clean.concepto}"`);
   revalidatePath("/finanzas");
   return { ok: true, id: data.id };
 }
@@ -46,6 +48,7 @@ export async function eliminarEgreso(id: string): Promise<ActionResult> {
   const admin = createAdminClient();
   const { error } = await admin.from("egresos").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };
+  await logAudit("eliminar", "Finanzas", "Eliminó un egreso");
   revalidatePath("/finanzas");
   return { ok: true };
 }
