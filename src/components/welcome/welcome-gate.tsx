@@ -41,9 +41,12 @@ export function WelcomeGate({ name }: { name: string }) {
   }, []);
 
   // Auto-retiro tras la pausa cálida + red de seguridad redundante.
+  // Pausa un poco más larga (más cinematográfica) sin afectar el prefetch:
+  // el panel ya está montado DEBAJO del velo, así que al disolverse aparece
+  // al instante pase lo que pase.
   useEffect(() => {
     if (!show) return;
-    const hold = reduced ? 900 : 2600;
+    const hold = reduced ? 1000 : 3200;
     const close = setTimeout(() => setShow(false), hold);
     const failsafe = setTimeout(() => setShow(false), hold + 2600);
     return () => {
@@ -68,10 +71,10 @@ function WelcomeOverlay({ name, reduced }: { name: string; reduced: boolean }) {
       animate={{ opacity: 1 }}
       exit={
         reduced
-          ? { opacity: 0, transition: { duration: 0.35 } }
-          : { opacity: 0, scale: 1.08, filter: "blur(10px)", transition: { ...easeElegant, duration: 0.75 } }
+          ? { opacity: 0, transition: { duration: 0.4 } }
+          : { opacity: 0, scale: 1.08, filter: "blur(10px)", transition: { ...easeElegant, duration: 0.85 } }
       }
-      transition={{ duration: reduced ? 0.3 : 0.5 }}
+      transition={{ duration: reduced ? 0.35 : 0.6 }}
       aria-live="polite"
     >
       {/* Aurora oscura que respira (contenida en el overlay) */}
@@ -113,7 +116,7 @@ function WelcomeOverlay({ name, reduced }: { name: string; reduced: boolean }) {
           <motion.div
             initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.7, filter: "blur(8px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            transition={reduced ? { duration: 0.4 } : { ...easeElegant, delay: 0.15, duration: 0.7 }}
+            transition={reduced ? { duration: 0.45 } : { ...easeElegant, delay: 0.25, duration: 0.85 }}
             className="relative grid h-20 w-20 place-items-center rounded-2xl bg-navy font-display text-3xl font-semibold tracking-tight text-gold shadow-layered ring-1 ring-[var(--gold)]/40 sm:h-24 sm:w-24 sm:text-4xl"
             style={{ boxShadow: "var(--glow-gold)" }}
           >
@@ -125,7 +128,7 @@ function WelcomeOverlay({ name, reduced }: { name: string; reduced: boolean }) {
         <motion.p
           initial={reduced ? { opacity: 0 } : { opacity: 0, y: 12, filter: "blur(10px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={reduced ? { duration: 0.4, delay: 0.1 } : { ...easeElegant, delay: 0.55, duration: 0.6 }}
+          transition={reduced ? { duration: 0.4, delay: 0.12 } : { ...easeElegant, delay: 0.8, duration: 0.7 }}
           className="text-sm font-medium uppercase tracking-[0.28em] text-muted-foreground sm:text-base"
         >
           Bienvenido de nuevo
@@ -135,7 +138,7 @@ function WelcomeOverlay({ name, reduced }: { name: string; reduced: boolean }) {
         <motion.h1
           initial={reduced ? { opacity: 0 } : { opacity: 0, y: 16, filter: "blur(14px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={reduced ? { duration: 0.45, delay: 0.18 } : { ...easeElegant, delay: 0.8, duration: 0.7 }}
+          transition={reduced ? { duration: 0.5, delay: 0.22 } : { ...easeElegant, delay: 1.15, duration: 0.85 }}
           className="mt-3 font-display text-4xl font-semibold leading-tight text-welcome-name sm:text-6xl"
         >
           {name}
@@ -145,13 +148,13 @@ function WelcomeOverlay({ name, reduced }: { name: string; reduced: boolean }) {
         <motion.div
           initial={reduced ? { opacity: 0 } : { opacity: 0, scaleX: 0.4 }}
           animate={{ opacity: 1, scaleX: 1 }}
-          transition={reduced ? { duration: 0.4, delay: 0.25 } : { ...easeElegant, delay: 1.15, duration: 0.7 }}
+          transition={reduced ? { duration: 0.4, delay: 0.3 } : { ...easeElegant, delay: 1.7, duration: 0.8 }}
           className="mt-6 h-px w-40 rule-gold sm:w-52"
         />
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={reduced ? { duration: 0.4, delay: 0.3 } : { duration: 0.8, delay: 1.35 }}
+          transition={reduced ? { duration: 0.4, delay: 0.34 } : { duration: 0.9, delay: 2.0 }}
           className="mt-4 text-[11px] font-medium uppercase tracking-[0.32em] text-muted-foreground/80"
         >
           JM Design · Gestión Legal
