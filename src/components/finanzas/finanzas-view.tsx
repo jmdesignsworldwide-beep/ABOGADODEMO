@@ -9,26 +9,56 @@ import { PremiumButton } from "@/components/ui/premium-button";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { Stagger, StaggerItem } from "@/components/ui/stagger";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { useDetail } from "@/components/ui/detail-modal";
 import { IngresosEgresosChart, EgresosCategoriaChart, HonorariosChart } from "./charts";
 import { EgresoFormModal } from "./egreso-form-modal";
 import { EgresoDetalleModal } from "./egreso-detalle-modal";
+import { DesgloseModal, type DesgloseRow } from "./desglose-modal";
 import { eliminarEgreso } from "@/app/(app)/finanzas/actions";
 import { formatRD } from "@/lib/facturas";
-import { CATEGORIA_EGRESO_LABEL, type Egreso } from "@/lib/db/types";
-import type { FinancieroData } from "@/lib/db/financiero";
+import { CATEGORIA_EGRESO_LABEL, type CategoriaEgreso, type Egreso } from "@/lib/db/types";
+import type { FacturaLite, FinancieroData } from "@/lib/db/financiero";
+
+type Desglose = {
+  title: string;
+  eyebrow?: string;
+  accent?: "gold" | "navy" | "critical";
+  total?: number;
+  rows: DesgloseRow[];
+  emptyText?: string;
+};
+
+const mk = (iso: string) => iso.slice(0, 7);
+const facturaRows = (fs: FacturaLite[]): DesgloseRow[] =>
+  fs.map((f) => ({ kind: "factura", id: f.id, titulo: f.cliente, sub: `${f.numero} · ${new Date(`${f.fecha}T00:00:00`).toLocaleDateString("es-DO", { day: "2-digit", month: "short" })}`, monto: f.total }));
+const egresoRows = (es: Egreso[]): DesgloseRow[] => es.map((e) => ({ kind: "egreso", egreso: e }));
 
 export function FinanzasView({ data }: { data: FinancieroData }) {
   const router = useRouter();
-  const { open } = useDetail();
-  const { kpis, serie, porCategoria, honorarios, movimientos } = data;
+  const { kpis, serie, porCategoria, honorarios, movimientos, mesActual, facturasPagadas, facturasPendientes, egresos } = data;
 
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Egreso | null>(null);
   const [selected, setSelected] = useState<Egreso | null>(null);
   const [deleting, setDeleting] = useState<Egreso | null>(null);
+  const [desglose, setDesglose] = useState<Desglose | null>(null);
 
-  const topCats = porCategoria.slice(0, 4).map((c) => ({ label: CATEGORIA_EGRESO_LABEL[c.categoria], value: formatRD(c.monto) }));
+  const abrirEgreso = (e: Egreso) => { setDesglose(null); setSelected(e); };
+
+  // Subconjuntos del mes actual
+  const pagadasMes = facturasPagadas.filter((f) => mk(f.fecha) === mesActual);
+  const egresosMesArr = egresos.filter((e) => mk(e.fecha) === mesActual);
+
+  function desgloseMes(key: string, mes: string) {
+    const ing = facturasPagadas.filter((f) => mk(f.fecha) === key);
+    const egr = egresos.filter((e) => mk(e.fecha) === key);
+    setDesglose({
+      title: `Movimientos · ${mes}`,
+      eyebrow: "Desglose del mes",
+      accent: "navy",
+      rows: [...facturaRows(ing), ...egresoRows(egr)],
+      emptyText: "No hubo movimientos este mes.",
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -42,19 +72,19 @@ export function FinanzasView({ data }: { data: FinancieroData }) {
       <Stagger className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StaggerItem>
           <KpiCard label="Ingresos del mes" value={kpis.ingresosMes} prefix="RD$ " icon={TrendingUp}
-            onClick={() => open({ eyebrow: "Ingresos", title: "Ingresos del mes", subtitle: "Facturas cobradas este mes.", accent: "gold", cta: "Ver facturación", meta: [{ label: "Total cobrado", value: formatRD(kpis.ingresosMes) }, { label: "Honorarios cobrados (total)", value: formatRD(honorarios.cobrado) }] })} />
+            onClick={() => setDesglose({ title: "Ingresos del mes", eyebrow: "Facturas cobradas", accent: "gold", total: kpis.ingresosMes, rows: facturaRows(pagadasMes), emptyText: "No hay facturas cobradas este mes." })} />
         </StaggerItem>
         <StaggerItem>
           <KpiCard label="Egresos del mes" value={kpis.egresosMes} prefix="RD$ " icon={TrendingDown}
-            onClick={() => open({ eyebrow: "Egresos", title: "Egresos del mes", subtitle: "Principales categorías de gasto.", accent: "critical", cta: "Entendido", meta: topCats })} />
+            onClick={() => setDesglose({ title: "Egresos del mes", eyebrow: "Gastos del bufete", accent: "critical", total: kpis.egresosMes, rows: egresoRows(egresosMesArr), emptyText: "No hay egresos este mes." })} />
         </StaggerItem>
         <StaggerItem>
           <KpiCard label="Balance del mes" value={kpis.balanceMes} prefix="RD$ " icon={Wallet}
-            onClick={() => open({ eyebrow: "Balance", title: "Balance del mes", subtitle: "Ingresos menos egresos.", accent: kpis.balanceMes >= 0 ? "gold" : "critical", cta: "Entendido", meta: [{ label: "Ingresos", value: formatRD(kpis.ingresosMes) }, { label: "Egresos", value: formatRD(kpis.egresosMes) }, { label: "Balance", value: formatRD(kpis.balanceMes) }] })} />
+            onClick={() => setDesglose({ title: "Balance del mes", eyebrow: "Ingresos y egresos", accent: kpis.balanceMes >= 0 ? "gold" : "critical", rows: [...facturaRows(pagadasMes), ...egresoRows(egresosMesArr)], emptyText: "Sin movimientos este mes." })} />
         </StaggerItem>
         <StaggerItem>
           <KpiCard label="Honorarios pendientes" value={kpis.honorariosPendientes} prefix="RD$ " icon={Scale}
-            onClick={() => open({ eyebrow: "Honorarios", title: "Honorarios pendientes", subtitle: "Facturas emitidas sin cobrar.", accent: "gold", cta: "Ver facturación", meta: [{ label: "Pendiente de cobro", value: formatRD(honorarios.pendiente) }, { label: "Cobrado", value: formatRD(honorarios.cobrado) }] })} />
+            onClick={() => setDesglose({ title: "Honorarios pendientes", eyebrow: "Facturas sin cobrar", accent: "gold", total: kpis.honorariosPendientes, rows: facturaRows(facturasPendientes), emptyText: "No hay facturas pendientes." })} />
         </StaggerItem>
       </Stagger>
 
@@ -62,21 +92,45 @@ export function FinanzasView({ data }: { data: FinancieroData }) {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="rounded-2xl glass p-5 shadow-layered lg:col-span-2">
           <h3 className="font-display text-lg font-semibold text-foreground">Ingresos vs. Egresos</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Últimos 6 meses (RD$).</p>
-          <div className="mt-4"><IngresosEgresosChart data={serie} /></div>
+          <p className="mt-1 text-sm text-muted-foreground">Últimos 6 meses · toca una barra para el desglose.</p>
+          <div className="mt-4"><IngresosEgresosChart data={serie} onMonthClick={desgloseMes} /></div>
         </div>
         <div className="rounded-2xl glass p-5 shadow-layered">
           <h3 className="font-display text-lg font-semibold text-foreground">Honorarios</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Cobrados vs. pendientes.</p>
-          <div className="mt-4"><HonorariosChart cobrado={honorarios.cobrado} pendiente={honorarios.pendiente} /></div>
+          <p className="mt-1 text-sm text-muted-foreground">Toca una parte para ver sus facturas.</p>
+          <div className="mt-4">
+            <HonorariosChart
+              cobrado={honorarios.cobrado}
+              pendiente={honorarios.pendiente}
+              onSegmentClick={(seg) =>
+                seg === "cobrado"
+                  ? setDesglose({ title: "Honorarios cobrados", eyebrow: "Facturas pagadas", accent: "gold", total: honorarios.cobrado, rows: facturaRows(facturasPagadas), emptyText: "Sin facturas cobradas." })
+                  : setDesglose({ title: "Honorarios pendientes", eyebrow: "Facturas sin cobrar", accent: "gold", total: honorarios.pendiente, rows: facturaRows(facturasPendientes), emptyText: "Sin facturas pendientes." })
+              }
+            />
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="rounded-2xl glass p-5 shadow-layered">
           <h3 className="font-display text-lg font-semibold text-foreground">Egresos por categoría</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Distribución del gasto del bufete.</p>
-          <div className="mt-4"><EgresosCategoriaChart data={porCategoria} /></div>
+          <p className="mt-1 text-sm text-muted-foreground">Toca una categoría para ver sus egresos.</p>
+          <div className="mt-4">
+            <EgresosCategoriaChart
+              data={porCategoria}
+              onCategoriaClick={(cat: CategoriaEgreso) =>
+                setDesglose({
+                  title: CATEGORIA_EGRESO_LABEL[cat],
+                  eyebrow: "Egresos por categoría",
+                  accent: "critical",
+                  total: porCategoria.find((c) => c.categoria === cat)?.monto,
+                  rows: egresoRows(egresos.filter((e) => e.categoria === cat)),
+                  emptyText: "Sin egresos en esta categoría.",
+                })
+              }
+            />
+          </div>
         </div>
 
         {/* Movimientos recientes */}
@@ -95,7 +149,7 @@ export function FinanzasView({ data }: { data: FinancieroData }) {
                       <p className="truncate text-sm font-medium text-foreground">{m.etiqueta}</p>
                       <p className="truncate text-xs tabular text-muted-foreground">{m.ref} · {fecha(m.fecha)}</p>
                     </div>
-                    <span className="shrink-0 text-sm font-semibold tabular text-emerald-500">+{formatRD(m.monto)}</span>
+                    <span className="shrink-0 whitespace-nowrap text-sm font-semibold tabular text-emerald-500">+{formatRD(m.monto)}</span>
                   </Link>
                 ) : (
                   <button key={m.id} type="button" onClick={() => setSelected(m.egreso)} className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]">
@@ -104,7 +158,7 @@ export function FinanzasView({ data }: { data: FinancieroData }) {
                       <p className="truncate text-sm font-medium text-foreground">{m.egreso.concepto}</p>
                       <p className="truncate text-xs text-muted-foreground">{CATEGORIA_EGRESO_LABEL[m.egreso.categoria]} · {fecha(m.egreso.fecha)}</p>
                     </div>
-                    <span className="shrink-0 text-sm font-semibold tabular text-critical">−{formatRD(Number(m.egreso.monto))}</span>
+                    <span className="shrink-0 whitespace-nowrap text-sm font-semibold tabular text-critical">−{formatRD(Number(m.egreso.monto))}</span>
                   </button>
                 ),
               )
@@ -114,6 +168,17 @@ export function FinanzasView({ data }: { data: FinancieroData }) {
       </div>
 
       {/* Modales */}
+      <DesgloseModal
+        open={Boolean(desglose)}
+        onClose={() => setDesglose(null)}
+        title={desglose?.title ?? ""}
+        eyebrow={desglose?.eyebrow}
+        accent={desglose?.accent}
+        total={desglose?.total}
+        rows={desglose?.rows ?? []}
+        onEgreso={abrirEgreso}
+        emptyText={desglose?.emptyText}
+      />
       <EgresoFormModal open={creating} onClose={() => setCreating(false)} />
       {editing && <EgresoFormModal open onClose={() => setEditing(null)} egreso={editing} />}
       <EgresoDetalleModal

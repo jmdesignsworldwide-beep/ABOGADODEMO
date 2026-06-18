@@ -2,20 +2,27 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { CategoriaEgreso, Egreso } from "./types";
 
+export type FacturaLite = { id: string; numero: string; cliente: string; total: number; fecha: string };
+
 export type Movimiento =
   | { tipo: "ingreso"; id: string; facturaId: string; etiqueta: string; ref: string; monto: number; fecha: string }
   | { tipo: "egreso"; id: string; egreso: Egreso };
 
 export type FinancieroData = {
+  mesActual: string; // YYYY-MM
   kpis: { ingresosMes: number; egresosMes: number; balanceMes: number; honorariosPendientes: number };
-  serie: { mes: string; ingresos: number; egresos: number }[];
+  serie: { mes: string; key: string; ingresos: number; egresos: number }[];
   porCategoria: { categoria: CategoriaEgreso; monto: number }[];
   honorarios: { cobrado: number; pendiente: number };
   movimientos: Movimiento[];
+  // Datos crudos para los desgloses clickeables
+  facturasPagadas: FacturaLite[];
+  facturasPendientes: FacturaLite[];
+  egresos: Egreso[];
 };
 
 const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-const monthKey = (iso: string) => iso.slice(0, 7); // YYYY-MM
+const monthKey = (iso: string) => iso.slice(0, 7);
 
 export async function getFinanciero(): Promise<FinancieroData> {
   const admin = createAdminClient();
@@ -33,46 +40,34 @@ export async function getFinanciero(): Promise<FinancieroData> {
   const facturas = (facturasRes.data as unknown as FRow[] | null) ?? [];
   const egresos = (egresosRes.data as Egreso[] | null) ?? [];
 
-  const pagadas = facturas.filter((f) => f.estado === "pagada");
-  const pendientes = facturas.filter((f) => f.estado === "pendiente");
+  const toLite = (f: FRow): FacturaLite => ({ id: f.id, numero: f.numero, cliente: f.clientes?.nombre ?? f.numero, total: Number(f.total), fecha: f.fecha });
+  const facturasPagadas = facturas.filter((f) => f.estado === "pagada").map(toLite);
+  const facturasPendientes = facturas.filter((f) => f.estado === "pendiente").map(toLite);
 
-  const sum = (arr: { total?: number; monto?: number }[], key: "total" | "monto") =>
-    arr.reduce((a, x) => a + Number(x[key] ?? 0), 0);
+  const sumTotal = (arr: FacturaLite[]) => arr.reduce((a, x) => a + x.total, 0);
 
-  const ingresosMes = sum(pagadas.filter((f) => monthKey(f.fecha) === mesActual), "total");
+  const ingresosMes = sumTotal(facturasPagadas.filter((f) => monthKey(f.fecha) === mesActual));
   const egresosMes = egresos.filter((e) => monthKey(e.fecha) === mesActual).reduce((a, e) => a + Number(e.monto), 0);
-  const honorariosPendientes = sum(pendientes, "total");
-  const cobrado = sum(pagadas, "total");
+  const honorariosPendientes = sumTotal(facturasPendientes);
+  const cobrado = sumTotal(facturasPagadas);
 
-  // Serie de los últimos 6 meses
-  const serie: { mes: string; ingresos: number; egresos: number }[] = [];
+  const serie: FinancieroData["serie"] = [];
   for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const key = d.toISOString().slice(0, 7);
     serie.push({
       mes: MESES[d.getMonth()],
-      ingresos: pagadas.filter((f) => monthKey(f.fecha) === key).reduce((a, f) => a + Number(f.total), 0),
+      key,
+      ingresos: facturasPagadas.filter((f) => monthKey(f.fecha) === key).reduce((a, f) => a + f.total, 0),
       egresos: egresos.filter((e) => monthKey(e.fecha) === key).reduce((a, e) => a + Number(e.monto), 0),
     });
   }
 
-  // Egresos por categoría
   const catMap = new Map<CategoriaEgreso, number>();
   for (const e of egresos) catMap.set(e.categoria, (catMap.get(e.categoria) ?? 0) + Number(e.monto));
-  const porCategoria = [...catMap.entries()]
-    .map(([categoria, monto]) => ({ categoria, monto }))
-    .sort((a, b) => b.monto - a.monto);
+  const porCategoria = [...catMap.entries()].map(([categoria, monto]) => ({ categoria, monto })).sort((a, b) => b.monto - a.monto);
 
-  // Movimientos recientes (ingresos pagados + egresos)
-  const movIngresos: Movimiento[] = pagadas.map((f) => ({
-    tipo: "ingreso",
-    id: `f-${f.id}`,
-    facturaId: f.id,
-    etiqueta: f.clientes?.nombre ?? f.numero,
-    ref: f.numero,
-    monto: Number(f.total),
-    fecha: f.fecha,
-  }));
+  const movIngresos: Movimiento[] = facturasPagadas.map((f) => ({ tipo: "ingreso", id: `f-${f.id}`, facturaId: f.id, etiqueta: f.cliente, ref: f.numero, monto: f.total, fecha: f.fecha }));
   const movEgresos: Movimiento[] = egresos.map((e) => ({ tipo: "egreso", id: `e-${e.id}`, egreso: e }));
   const movimientos = [...movIngresos, ...movEgresos]
     .sort((a, b) => {
@@ -83,10 +78,14 @@ export async function getFinanciero(): Promise<FinancieroData> {
     .slice(0, 12);
 
   return {
+    mesActual,
     kpis: { ingresosMes, egresosMes, balanceMes: ingresosMes - egresosMes, honorariosPendientes },
     serie,
     porCategoria,
     honorarios: { cobrado, pendiente: honorariosPendientes },
     movimientos,
+    facturasPagadas,
+    facturasPendientes,
+    egresos,
   };
 }
