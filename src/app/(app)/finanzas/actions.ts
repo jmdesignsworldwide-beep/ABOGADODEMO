@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireActiveUser } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import type { EgresoInput } from "@/lib/db/types";
 
@@ -24,6 +25,7 @@ function sanitize(input: EgresoInput): EgresoInput | string {
 }
 
 export async function crearEgreso(input: EgresoInput): Promise<ActionResult> {
+  await requireActiveUser();
   const clean = sanitize(input);
   if (typeof clean === "string") return { ok: false, error: clean };
   const admin = createAdminClient();
@@ -35,6 +37,7 @@ export async function crearEgreso(input: EgresoInput): Promise<ActionResult> {
 }
 
 export async function actualizarEgreso(id: string, input: EgresoInput): Promise<ActionResult> {
+  await requireActiveUser();
   const clean = sanitize(input);
   if (typeof clean === "string") return { ok: false, error: clean };
   const admin = createAdminClient();
@@ -45,6 +48,7 @@ export async function actualizarEgreso(id: string, input: EgresoInput): Promise<
 }
 
 export async function eliminarEgreso(id: string): Promise<ActionResult> {
+  await requireActiveUser();
   const admin = createAdminClient();
   const { error } = await admin.from("egresos").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };

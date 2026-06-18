@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireActiveUser } from "@/lib/auth";
 import type { ExpedienteInput } from "@/lib/db/types";
 
 export type ActionResult = { ok: true; id?: string } | { ok: false; error: string };
@@ -24,6 +25,7 @@ function sanitize(input: ExpedienteInput): ExpedienteInput | string {
 }
 
 export async function createExpediente(input: ExpedienteInput): Promise<ActionResult> {
+  await requireActiveUser();
   const clean = sanitize(input);
   if (typeof clean === "string") return { ok: false, error: clean };
   const supabase = createAdminClient();
@@ -38,6 +40,7 @@ export async function createExpediente(input: ExpedienteInput): Promise<ActionRe
 }
 
 export async function updateExpediente(id: string, input: ExpedienteInput): Promise<ActionResult> {
+  await requireActiveUser();
   const clean = sanitize(input);
   if (typeof clean === "string") return { ok: false, error: clean };
   const supabase = createAdminClient();
@@ -53,6 +56,7 @@ export async function updateExpediente(id: string, input: ExpedienteInput): Prom
 }
 
 export async function deleteExpediente(id: string): Promise<ActionResult> {
+  await requireActiveUser();
   const supabase = createAdminClient();
   const { error } = await supabase.from("expedientes").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };

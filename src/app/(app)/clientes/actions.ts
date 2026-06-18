@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireActiveUser } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import type { ClienteInput } from "@/lib/db/types";
 
@@ -35,6 +36,7 @@ function sanitize(input: ClienteInput): ClienteInput | string {
 }
 
 export async function createCliente(input: ClienteInput): Promise<ActionResult> {
+  await requireActiveUser();
   const clean = sanitize(input);
   if (typeof clean === "string") return { ok: false, error: clean };
 
@@ -52,6 +54,7 @@ export async function createCliente(input: ClienteInput): Promise<ActionResult> 
 }
 
 export async function updateCliente(id: string, input: ClienteInput): Promise<ActionResult> {
+  await requireActiveUser();
   const clean = sanitize(input);
   if (typeof clean === "string") return { ok: false, error: clean };
 
@@ -66,6 +69,7 @@ export async function updateCliente(id: string, input: ClienteInput): Promise<Ac
 }
 
 export async function deleteCliente(id: string): Promise<ActionResult> {
+  await requireActiveUser();
   const supabase = createAdminClient();
   const { error } = await supabase.from("clientes").delete().eq("id", id);
 

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireActiveUser } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import type { RecordatorioInput } from "@/lib/db/types";
 
@@ -20,6 +21,7 @@ function sanitize(input: RecordatorioInput): RecordatorioInput | string {
 }
 
 export async function crearRecordatorio(input: RecordatorioInput): Promise<ActionResult> {
+  await requireActiveUser();
   const clean = sanitize(input);
   if (typeof clean === "string") return { ok: false, error: clean };
   const admin = createAdminClient();
@@ -31,6 +33,7 @@ export async function crearRecordatorio(input: RecordatorioInput): Promise<Actio
 }
 
 export async function actualizarRecordatorio(id: string, input: RecordatorioInput): Promise<ActionResult> {
+  await requireActiveUser();
   const clean = sanitize(input);
   if (typeof clean === "string") return { ok: false, error: clean };
   const admin = createAdminClient();
@@ -42,6 +45,7 @@ export async function actualizarRecordatorio(id: string, input: RecordatorioInpu
 }
 
 export async function toggleCompletado(id: string, completado: boolean): Promise<ActionResult> {
+  await requireActiveUser();
   const admin = createAdminClient();
   const { error } = await admin.from("recordatorios").update({ completado }).eq("id", id);
   if (error) return { ok: false, error: error.message };
@@ -51,6 +55,7 @@ export async function toggleCompletado(id: string, completado: boolean): Promise
 }
 
 export async function eliminarRecordatorio(id: string): Promise<ActionResult> {
+  await requireActiveUser();
   const admin = createAdminClient();
   const { error } = await admin.from("recordatorios").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };

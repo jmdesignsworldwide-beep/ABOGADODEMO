@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireActiveUser } from "@/lib/auth";
 import { calcularTotales, siguienteNCF } from "@/lib/facturas";
 import { logAudit } from "@/lib/audit";
 import type { FacturaEstado, FacturaInput } from "@/lib/db/types";
@@ -12,6 +13,7 @@ const TIPOS = ["B01", "B02"];
 const ESTADOS = ["pendiente", "pagada", "anulada"];
 
 export async function crearFactura(input: FacturaInput): Promise<ActionResult> {
+  await requireActiveUser();
   if (!input.cliente_id) return { ok: false, error: "Debes seleccionar un cliente." };
   if (!TIPOS.includes(input.tipo_ncf)) return { ok: false, error: "Tipo de NCF inválido." };
   if (!input.fecha) return { ok: false, error: "La fecha es obligatoria." };
@@ -65,6 +67,7 @@ export async function crearFactura(input: FacturaInput): Promise<ActionResult> {
 }
 
 export async function cambiarEstadoFactura(id: string, estado: FacturaEstado): Promise<ActionResult> {
+  await requireActiveUser();
   if (!ESTADOS.includes(estado)) return { ok: false, error: "Estado inválido." };
   const admin = createAdminClient();
   const { error } = await admin.from("facturas").update({ estado }).eq("id", id);
@@ -76,6 +79,7 @@ export async function cambiarEstadoFactura(id: string, estado: FacturaEstado): P
 }
 
 export async function deleteFactura(id: string): Promise<ActionResult> {
+  await requireActiveUser();
   const admin = createAdminClient();
   const { error } = await admin.from("facturas").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };
