@@ -1,4 +1,5 @@
 import {
+  BellRing,
   Calendar,
   FileSignature,
   FileStack,
@@ -29,6 +30,7 @@ export const navItems: NavItem[] = [
   { label: "Casos", href: "/casos", icon: Scale },
   { label: "Expedientes", href: "/expedientes", icon: FileStack },
   { label: "Agenda", href: "/agenda", icon: Calendar },
+  { label: "Recordatorios", href: "/recordatorios", icon: BellRing },
   { label: "Documentos", href: "/documentos", icon: FileText },
   { label: "Contratos", href: "/contratos", icon: FileSignature },
   { label: "Facturación", href: "/facturacion", icon: Receipt },

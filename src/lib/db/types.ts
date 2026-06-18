@@ -318,3 +318,35 @@ export type ContratoConVinculos = DocumentoGenerado & {
   cliente: Pick<Cliente, "id" | "nombre"> | null;
   caso: Pick<Caso, "id" | "titulo"> | null;
 };
+
+export interface Recordatorio {
+  id: string;
+  titulo: string;
+  fecha: string; // ISO timestamptz
+  caso_id: string | null;
+  nota: string | null;
+  completado: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type RecordatorioConCaso = Recordatorio & {
+  caso: Pick<Caso, "id" | "titulo"> | null;
+};
+
+export type RecordatorioInput = {
+  titulo: string;
+  fecha: string;
+  caso_id: string | null;
+  nota: string | null;
+};
+
+export interface AuditoriaEntrada {
+  id: string;
+  usuario: string | null;
+  rol: string | null;
+  accion: string;
+  modulo: string;
+  detalle: string | null;
+  created_at: string;
+}
