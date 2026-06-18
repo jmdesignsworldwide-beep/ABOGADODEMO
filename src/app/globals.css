@@ -1,26 +1,325 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────────────────────────────────
+   JM Design — Gestión Legal · Sistema de diseño
+   Tokens de color centralizados + dos temas premium (oscuro / claro).
+   Cambia un valor aquí y todo el sistema lo hereda.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* next-themes pone class="dark" o "light" en <html>. Activamos el variant. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ===========================================================================
+   TEMA CLARO — crema cálido elegante (NO un blanco plano), marino de acento,
+   bronce dorado para detalles. Es el tema por defecto de :root.
+   =========================================================================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Superficies cálidas con profundidad (crema, nunca blanco plano) */
+  --background: #f1e8d9; /* crema cálido base */
+  --surface: #fcf8f0; /* tarjetas / paneles: claramente elevadas sobre el fondo */
+  --surface-2: #f5ede0; /* superficie secundaria */
+  --foreground: #19223a; /* texto principal (marino casi negro, alto contraste) */
+  --muted: #ebe0cf; /* fondos sutiles */
+  --muted-foreground: #585341; /* texto secundario — más nítido para legibilidad */
+  --border: rgba(40, 52, 78, 0.10);
+
+  /* Marca: marino profundo (acento principal) */
+  --navy: #1b3a5b;
+  --navy-strong: #14304d;
+  --navy-foreground: #f7f2e7;
+
+  /* Marca: dorado / bronce que brilla en claro (acento de lujo) */
+  --gold: #a07d28;
+  --gold-bright: #c4992f;
+  --gold-foreground: #2a2008;
+
+  /* Cristal (glassmorphism suave, coherente con el oscuro) */
+  --glass: rgba(252, 248, 240, 0.64);
+  --glass-border: rgba(255, 253, 248, 0.65);
+
+  /* Atmósfera de fondo: degradado cálido MUY sutil (da dimensión como la
+     aurora al oscuro). Lo usa la capa base del Aurora y el <body>. */
+  --aurora-base:
+    radial-gradient(135% 115% at 50% -15%, #faf3e6 0%, #f1e8d9 48%, #ebe0cf 100%);
+
+  /* Aurora (marino + dorado): más presencia que antes, pero elegante */
+  --aurora-1: rgba(27, 58, 91, 0.16);
+  --aurora-2: rgba(176, 137, 45, 0.20);
+  --aurora-3: rgba(193, 154, 51, 0.13);
+
+  /* Anillos / glow */
+  --ring: rgba(169, 132, 43, 0.55);
+
+  /* Gravedad — crítico (ámbar/coral cálido, profundo para contraste en crema) */
+  --critical: #b45309;
+  --critical-bright: #d97706;
+  --critical-soft: rgba(217, 119, 6, 0.12);
+  --critical-glow: rgba(217, 119, 6, 0.30);
+
+  /* Sombras suaves multicapa — sensación de flotación premium */
+  --shadow-layered:
+    0 1px 1.5px rgba(58, 46, 24, 0.05),
+    0 3px 6px rgba(40, 44, 64, 0.05),
+    0 9px 20px rgba(36, 48, 74, 0.07),
+    0 22px 48px rgba(36, 48, 74, 0.10);
+  --glow-gold: 0 0 0 1px rgba(164, 126, 40, 0.32), 0 0 22px rgba(196, 153, 47, 0.32), 0 4px 16px rgba(164, 126, 40, 0.18);
+  --glow-navy: 0 0 0 1px rgba(27, 58, 91, 0.28), 0 0 24px rgba(27, 58, 91, 0.20);
 }
 
+/* ===========================================================================
+   TEMA OSCURO — near-black con tinte marino, dorado que brilla.
+   =========================================================================== */
+.dark {
+  --background: #060911; /* near-black marino */
+  --surface: #0b1120; /* tarjetas / paneles */
+  --surface-2: #0e1424; /* superficie secundaria */
+  --foreground: #e7eaf3;
+  --muted: #131b2e;
+  --muted-foreground: #9aa3ba;
+  --border: rgba(176, 192, 228, 0.10);
+
+  --navy: #2f6098; /* marino luminoso para que resalte en lo oscuro */
+  --navy-strong: #224a78;
+  --navy-foreground: #f4f8ff;
+
+  --gold: #d4af37; /* dorado que brilla */
+  --gold-bright: #f0d27a;
+  --gold-foreground: #1a1404;
+
+  --glass: rgba(15, 22, 40, 0.55);
+  --glass-border: rgba(176, 192, 228, 0.12);
+
+  /* Capa base del Aurora (en oscuro = el near-black de siempre, sin cambios). */
+  --aurora-base: #060911;
+
+  --aurora-1: rgba(34, 74, 120, 0.40);
+  --aurora-2: rgba(212, 175, 55, 0.22);
+  --aurora-3: rgba(47, 96, 152, 0.28);
+
+  --ring: rgba(212, 175, 55, 0.55);
+
+  /* Gravedad — crítico (ámbar/coral que brilla en lo oscuro) */
+  --critical: #f0a55e;
+  --critical-bright: #f6b87a;
+  --critical-soft: rgba(240, 165, 94, 0.14);
+  --critical-glow: rgba(240, 165, 94, 0.40);
+
+  --shadow-layered:
+    0 1px 2px rgba(0, 0, 0, 0.40),
+    0 6px 18px rgba(0, 0, 0, 0.45),
+    0 22px 60px rgba(0, 0, 0, 0.55);
+  --glow-gold: 0 0 0 1px rgba(212, 175, 55, 0.35), 0 0 28px rgba(212, 175, 55, 0.35);
+  --glow-navy: 0 0 0 1px rgba(47, 96, 152, 0.40), 0 0 28px rgba(47, 96, 152, 0.40);
+}
+
+/* ===========================================================================
+   Mapeo de tokens → utilidades Tailwind (bg-background, text-gold, etc.)
+   =========================================================================== */
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+
+  --color-navy: var(--navy);
+  --color-navy-strong: var(--navy-strong);
+  --color-navy-foreground: var(--navy-foreground);
+
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-gold-foreground: var(--gold-foreground);
+
+  --color-critical: var(--critical);
+  --color-critical-bright: var(--critical-bright);
+
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, "Times New Roman", serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ===========================================================================
+   Base
+   =========================================================================== */
+* {
+  border-color: var(--border);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Tema claro: atmósfera cálida con degradado muy sutil (no blanco plano).
+   Solo afecta al claro; el oscuro mantiene su near-black intacto. */
+html:not(.dark) body {
+  background-image: var(--aurora-base);
+  background-attachment: fixed;
+}
+
+/* Números alineados (tabular) para KPIs, montos, fechas */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Display (Fraunces): tracking ligeramente cerrado y optical-sizing para
+   que los títulos grandes luzcan con presencia premium. */
+.font-display {
+  font-optical-sizing: auto;
+  letter-spacing: -0.015em;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--gold-foreground);
+}
+
+/* Scrollbar discreta y premium */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+  background-clip: content-box;
+}
+
+/* ===========================================================================
+   Utilidades premium reutilizables
+   =========================================================================== */
+
+/* Cristal sutil con desenfoque */
+@utility glass {
+  background: var(--glass);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid var(--glass-border);
+}
+
+/* Sombra en capas */
+@utility shadow-layered {
+  box-shadow: var(--shadow-layered);
+}
+
+/* Glows para elementos activos */
+@utility glow-gold {
+  box-shadow: var(--glow-gold);
+}
+@utility glow-navy {
+  box-shadow: var(--glow-navy);
+}
+
+/* Texto con degradado dorado (para el wordmark y acentos) */
+@utility text-gold-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--gold-bright) 0%,
+    var(--gold) 55%,
+    var(--gold-bright) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Hairline dorado decorativo */
+@utility rule-gold {
+  background: linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
+}
+
+/* Nombre de la bienvenida: degradado de marca (oro → marino luminoso).
+   Tokenizado para ajustarlo en un solo sitio. */
+@utility text-welcome-name {
+  background: linear-gradient(
+    115deg,
+    var(--gold-bright) 0%,
+    var(--gold) 45%,
+    var(--navy) 118%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ===========================================================================
+   Aurora — fondo que respira (lento, sutil). Reutilizable.
+   =========================================================================== */
+@keyframes aurora-drift-1 {
+  0%, 100% { transform: translate3d(-8%, -6%, 0) scale(1); }
+  50%      { transform: translate3d(6%, 8%, 0) scale(1.15); }
+}
+@keyframes aurora-drift-2 {
+  0%, 100% { transform: translate3d(8%, 4%, 0) scale(1.1); }
+  50%      { transform: translate3d(-6%, -8%, 0) scale(0.95); }
+}
+@keyframes aurora-drift-3 {
+  0%, 100% { transform: translate3d(0%, 6%, 0) scale(1.05); }
+  50%      { transform: translate3d(4%, -6%, 0) scale(1.2); }
+}
+@keyframes aurora-breathe {
+  0%, 100% { opacity: 0.75; }
+  50%      { opacity: 1; }
+}
+
+/* Brillo del wordmark dorado al cargar */
+@keyframes gold-sheen {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Shimmer del skeleton de carga */
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+/* Anillos que pulsan tras el sello JM en la bienvenida. */
+@keyframes welcome-ring {
+  0%   { transform: scale(0.8); opacity: 0; }
+  35%  { opacity: 0.55; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* Latido suave (glow que respira) para gravedad crítica.
+   Lento y sutil — premium, NO un parpadeo nervioso. Se aplica a una capa de
+   glow para no pelear con la sombra de la tarjeta. Reducido por
+   prefers-reduced-motion (la regla global congela la animación). */
+@keyframes breathe-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* ===========================================================================
+   Accesibilidad — respeta prefers-reduced-motion en TODO el sistema.
+   Framer Motion también lo respeta vía useReducedMotion en los primitivos.
+   =========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
