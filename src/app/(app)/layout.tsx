@@ -4,7 +4,9 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { PageTransition } from "@/components/layout/page-transition";
 import { DetailProvider } from "@/components/ui/detail-modal";
+import { WelcomeGate } from "@/components/welcome/welcome-gate";
 import { requireActiveUser } from "@/lib/auth";
+import { welcomeName } from "@/lib/welcome";
 
 /**
  * Shell principal de la aplicación (tras iniciar sesión).
@@ -17,6 +19,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="relative min-h-dvh">
+      <WelcomeGate name={welcomeName(perfil)} />
       <AuroraBackground interactive />
       <Sidebar isAdmin={isAdmin} />
 

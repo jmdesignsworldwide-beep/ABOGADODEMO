@@ -232,6 +232,20 @@ body {
   background: linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
 }
 
+/* Nombre de la bienvenida: degradado de marca (oro → marino luminoso).
+   Tokenizado para ajustarlo en un solo sitio. */
+@utility text-welcome-name {
+  background: linear-gradient(
+    115deg,
+    var(--gold-bright) 0%,
+    var(--gold) 45%,
+    var(--navy) 118%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 /* ===========================================================================
    Aurora — fondo que respira (lento, sutil). Reutilizable.
    =========================================================================== */
@@ -261,6 +275,13 @@ body {
 /* Shimmer del skeleton de carga */
 @keyframes shimmer {
   100% { transform: translateX(100%); }
+}
+
+/* Anillos que pulsan tras el sello JM en la bienvenida. */
+@keyframes welcome-ring {
+  0%   { transform: scale(0.8); opacity: 0; }
+  35%  { opacity: 0.55; }
+  100% { transform: scale(1.8); opacity: 0; }
 }
 
 /* Latido suave (glow que respira) para gravedad crítica.

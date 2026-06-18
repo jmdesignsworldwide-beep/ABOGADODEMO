@@ -27,9 +27,21 @@ export function LoginForm() {
       return;
     }
     setLoading(true);
+    // Marca la bienvenida cinematográfica para que se reproduzca UNA vez al
+    // entrar al panel. Si el login falla, la limpiamos abajo.
+    try {
+      sessionStorage.setItem("jm:welcome", "pending");
+    } catch {
+      /* sessionStorage no disponible: el panel simplemente no anima */
+    }
     const res = await login(username, password);
     // Si llega aquí con resultado, hubo error (el éxito redirige en el servidor).
     if (res && !res.ok) {
+      try {
+        sessionStorage.removeItem("jm:welcome");
+      } catch {
+        /* ignore */
+      }
       setError(res.error);
       setLoading(false);
     }
