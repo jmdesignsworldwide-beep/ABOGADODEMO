@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Menu, X } from "lucide-react";
@@ -11,6 +12,10 @@ import { LogoutButton } from "@/components/auth/logout-button";
 /**
  * Menú de navegación móvil: botón hamburguesa + drawer deslizante con overlay.
  * Cuidados anti-rotura:
+ *  - El overlay + drawer se renderizan con un PORTAL a document.body, fuera del
+ *    <header> (que tiene backdrop-blur: eso lo convertía en el bloque contenedor
+ *    de los elementos `fixed`, recortando el drawer a la altura del header).
+ *    Portado al body, el `fixed` es relativo al viewport y flota sobre TODO.
  *  - Se cierra solo al cambiar de ruta.
  *  - Bloquea el scroll del body mientras está abierto.
  *  - Cierra con tecla Escape.
@@ -19,8 +24,15 @@ import { LogoutButton } from "@/components/auth/logout-button";
  */
 export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const reduced = useReducedMotion();
+
+  // El portal necesita document.body (solo en cliente).
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   // Cerrar al navegar (incluye back/forward del navegador). Sincroniza con un
   // sistema externo (la URL), por eso el setState aquí es correcto.
@@ -39,6 +51,58 @@ export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
     };
   }, [open]);
 
+  const drawer = (
+    <AnimatePresence>
+      {open && (
+        <div className="lg:hidden">
+          {/* Overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            onClick={() => setOpen(false)}
+            className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm"
+          />
+
+          {/* Drawer */}
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navegación"
+            initial={reduced ? { opacity: 0 } : { x: "-100%" }}
+            animate={reduced ? { opacity: 1 } : { x: 0 }}
+            exit={reduced ? { opacity: 0 } : { x: "-100%" }}
+            transition={{ type: "spring", stiffness: 320, damping: 34 }}
+            className="fixed inset-y-0 left-0 z-[110] flex h-dvh w-[84%] max-w-xs flex-col bg-surface shadow-layered"
+          >
+            <div className="flex items-center justify-between px-5 pb-4 pt-6">
+              <Logo size="sm" />
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Cerrar menú"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <X className="h-5 w-5" strokeWidth={1.75} />
+              </button>
+            </div>
+            <div className="mx-4 h-px rule-gold opacity-50" />
+
+            <div className="flex-1 overflow-y-auto px-3 py-4">
+              <NavLinks onNavigate={() => setOpen(false)} layoutId="nav-active-mobile" isAdmin={isAdmin} />
+            </div>
+
+            <div className="mx-4 h-px bg-border" />
+            <div className="p-3">
+              <LogoutButton />
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+
   return (
     <div className="lg:hidden">
       <button
@@ -51,55 +115,8 @@ export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
         <Menu className="h-5 w-5" strokeWidth={1.75} />
       </button>
 
-      <AnimatePresence>
-        {open && (
-          <>
-            {/* Overlay */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              onClick={() => setOpen(false)}
-              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
-            />
-
-            {/* Drawer */}
-            <motion.div
-              role="dialog"
-              aria-modal="true"
-              aria-label="Navegación"
-              initial={reduced ? { opacity: 0 } : { x: "-100%" }}
-              animate={reduced ? { opacity: 1 } : { x: 0 }}
-              exit={reduced ? { opacity: 0 } : { x: "-100%" }}
-              transition={{ type: "spring", stiffness: 320, damping: 34 }}
-              className="fixed inset-y-0 left-0 z-50 flex w-[84%] max-w-xs flex-col bg-surface shadow-layered"
-            >
-              <div className="flex items-center justify-between px-5 pb-4 pt-6">
-                <Logo size="sm" />
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  aria-label="Cerrar menú"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <X className="h-5 w-5" strokeWidth={1.75} />
-                </button>
-              </div>
-              <div className="mx-4 h-px rule-gold opacity-50" />
-
-              <div className="flex-1 overflow-y-auto px-3 py-4">
-                <NavLinks onNavigate={() => setOpen(false)} layoutId="nav-active-mobile" isAdmin={isAdmin} />
-              </div>
-
-              <div className="mx-4 h-px bg-border" />
-              <div className="p-3">
-                <LogoutButton />
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {mounted && createPortal(drawer, document.body)}
     </div>
   );
 }
+
