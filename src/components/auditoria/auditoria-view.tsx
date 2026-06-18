@@ -107,7 +107,7 @@ export function AuditoriaView({ entradas }: { entradas: AuditoriaEntrada[] }) {
                           <p className="text-sm text-foreground"><span className="font-medium">{e.detalle ?? m.label}</span></p>
                           <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
                             <span className="inline-flex items-center gap-1">
-                              <span className="grid h-4 w-4 place-items-center rounded bg-navy text-[8px] font-semibold text-gold">{initials(e.usuario ?? "·")}</span>
+                              <span className="grid h-4 w-4 place-items-center rounded bg-navy text-[8px] font-semibold text-gold-on-navy">{initials(e.usuario ?? "·")}</span>
                               {e.usuario ?? "sistema"}
                             </span>
                             <span>·</span>

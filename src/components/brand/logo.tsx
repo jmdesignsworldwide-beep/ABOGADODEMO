@@ -32,11 +32,11 @@ export function Logo({
       <div
         className={cn(
           "relative grid place-items-center font-display font-semibold tracking-tight",
-          "bg-navy text-gold shadow-layered ring-1 ring-[var(--gold)]/30",
+          "bg-navy text-gold-on-navy shadow-layered ring-1 ring-[var(--gold-on-navy)]/30",
           mark,
         )}
       >
-        <span className="relative z-10 text-gold-gradient">JM</span>
+        <span className="relative z-10 text-gold-gradient-navy">JM</span>
         <span className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-60 glow-navy" />
       </div>
 

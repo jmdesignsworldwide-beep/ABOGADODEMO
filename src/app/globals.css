@@ -33,6 +33,12 @@
   --gold-bright: #c4992f;
   --gold-foreground: #2a2008;
 
+  /* Dorado SOBRE marino oscuro: champán luminoso para que resalte con
+     elegancia (el --gold normal se ensucia contra el azul profundo).
+     Sobre fondos crema se sigue usando --gold. */
+  --gold-on-navy: #e6c878;
+  --gold-on-navy-bright: #f2dca0;
+
   /* Cristal (glassmorphism suave, coherente con el oscuro) */
   --glass: rgba(252, 248, 240, 0.64);
   --glass-border: rgba(255, 253, 248, 0.65);
@@ -86,6 +92,10 @@
   --gold-bright: #f0d27a;
   --gold-foreground: #1a1404;
 
+  /* En oscuro el dorado ya brilla sobre el marino: sin cambios. */
+  --gold-on-navy: var(--gold);
+  --gold-on-navy-bright: var(--gold-bright);
+
   --glass: rgba(15, 22, 40, 0.55);
   --glass-border: rgba(176, 192, 228, 0.12);
 
@@ -131,6 +141,8 @@
   --color-gold: var(--gold);
   --color-gold-bright: var(--gold-bright);
   --color-gold-foreground: var(--gold-foreground);
+  --color-gold-on-navy: var(--gold-on-navy);
+  --color-gold-on-navy-bright: var(--gold-on-navy-bright);
 
   --color-critical: var(--critical);
   --color-critical-bright: var(--critical-bright);
@@ -246,6 +258,20 @@ html:not(.dark) body {
 /* Hairline dorado decorativo */
 @utility rule-gold {
   background: linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
+}
+
+/* Degradado dorado para sellos/monogramas SOBRE marino — usa el oro
+   luminoso (champán en claro, dorado normal en oscuro) para que brille. */
+@utility text-gold-gradient-navy {
+  background: linear-gradient(
+    135deg,
+    var(--gold-on-navy-bright) 0%,
+    var(--gold-on-navy) 55%,
+    var(--gold-on-navy-bright) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Nombre de la bienvenida: degradado de marca (oro → marino luminoso).

@@ -31,7 +31,7 @@ export function Avatar({
     <span
       aria-hidden
       className={cn(
-        "grid shrink-0 place-items-center bg-navy font-display font-semibold text-gold ring-1 ring-[var(--gold)]/25",
+        "grid shrink-0 place-items-center bg-navy font-display font-semibold text-gold-on-navy ring-1 ring-[var(--gold-on-navy)]/25",
         sz,
         className,
       )}
