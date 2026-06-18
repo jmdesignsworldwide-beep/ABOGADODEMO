@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, FolderOpen, Info, SendHorizonal, Sparkles, UserRound } from "lucide-react";
@@ -19,6 +19,9 @@ import { cn } from "@/lib/utils";
  * Bandeja unificada de mensajería (DEMOSTRACIÓN). Tres zonas: resumen por
  * canal (arriba), lista de conversaciones (izquierda) y chat abierto (derecha).
  * Todo el contenido es pre-poblado; "enviar" es local (no sale de verdad).
+ *
+ * El módulo llena el alto disponible: la lista y el chat tienen su propio
+ * scroll interno y la barra de escribir queda anclada al fondo del panel.
  */
 export function ComunicacionesView({ conversations: initial }: { conversations: Conversation[] }) {
   const reduced = useReducedMotion();
@@ -39,11 +42,16 @@ export function ComunicacionesView({ conversations: initial }: { conversations: 
     return acc;
   }, [convs]);
 
+  // Mantener el hilo pegado al fondo (al abrir y al enviar).
+  useEffect(() => {
+    const el = threadRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: reduced ? "auto" : "smooth" });
+  }, [activeId, active?.messages.length, reduced]);
+
   function openConversation(id: string) {
     setActiveId(id);
     setMobileChat(true);
     setDraft("");
-    // Marcar como leída.
     setConvs((prev) => prev.map((c) => (c.id === id ? { ...c, unread: 0 } : c)));
   }
 
@@ -53,25 +61,16 @@ export function ComunicacionesView({ conversations: initial }: { conversations: 
     setConvs((prev) =>
       prev.map((c) =>
         c.id === active.id
-          ? {
-              ...c,
-              time: "ahora",
-              messages: [...c.messages, { from: "out", text: body, time: "ahora" }],
-            }
+          ? { ...c, time: "ahora", messages: [...c.messages, { from: "out", text: body, time: "ahora" }] }
           : c,
       ),
     );
     setDraft("");
-    // Llevar el hilo al final tras pintar.
-    requestAnimationFrame(() => {
-      threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight, behavior: reduced ? "auto" : "smooth" });
-    });
   }
 
   function redactarConIA() {
     if (!active || aiLoading) return;
     setAiLoading(true);
-    // Pequeña pausa para que se sienta que "piensa" (demo).
     setTimeout(() => {
       setDraft(aiSuggestion(active));
       setAiLoading(false);
@@ -80,16 +79,14 @@ export function ComunicacionesView({ conversations: initial }: { conversations: 
   }
 
   return (
-    <div className="space-y-5">
+    <div className="flex h-[calc(100dvh-7rem)] flex-col gap-4 lg:h-[calc(100dvh-8rem)]">
       {/* Encabezado + indicador de canales activos */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      <div className={cn("flex shrink-0 flex-wrap items-end justify-between gap-3", mobileChat && "hidden lg:flex")}>
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             Comunicaciones
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Todos tus clientes, en un solo lugar.
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">Todos tus clientes, en un solo lugar.</p>
         </div>
         <div className="flex items-center gap-2 rounded-full glass px-3 py-1.5 text-xs font-medium text-muted-foreground">
           <span className="relative flex h-2 w-2">
@@ -101,7 +98,12 @@ export function ComunicacionesView({ conversations: initial }: { conversations: 
       </div>
 
       {/* Banner de demostración — sutil y elegante */}
-      <div className="flex items-center gap-2.5 rounded-xl border border-[var(--gold)]/25 bg-[color-mix(in_srgb,var(--gold)_8%,transparent)] px-3.5 py-2.5 text-xs text-foreground/80 sm:text-sm">
+      <div
+        className={cn(
+          "flex shrink-0 items-center gap-2.5 rounded-xl border border-[var(--gold)]/25 bg-[color-mix(in_srgb,var(--gold)_8%,transparent)] px-3.5 py-2.5 text-xs text-foreground/80 sm:text-sm",
+          mobileChat && "hidden lg:flex",
+        )}
+      >
         <Info className="h-4 w-4 shrink-0 text-gold" strokeWidth={2} />
         <span>
           <span className="font-medium text-foreground">Vista previa</span> — integración de mensajería (demostración).
@@ -109,39 +111,33 @@ export function ComunicacionesView({ conversations: initial }: { conversations: 
       </div>
 
       {/* Zona 1: tarjetas-resumen por canal */}
-      <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
+      <div className={cn("grid shrink-0 grid-cols-3 gap-3 sm:gap-4", mobileChat && "hidden lg:grid")}>
         {CHANNEL_ORDER.map((ch) => {
           const meta = CHANNELS[ch];
           const unread = unreadByChannel[ch];
           const Icon = meta.Icon;
           return (
-            <div
-              key={ch}
-              className="relative overflow-hidden rounded-2xl glass shadow-layered p-3 sm:p-4"
-            >
-              <span
-                aria-hidden
-                className="absolute inset-x-0 top-0 h-0.5"
-                style={{ background: meta.accent }}
-              />
-              <div className="flex items-center gap-2 sm:gap-3">
+            <div key={ch} className="rounded-2xl glass shadow-layered p-3.5 sm:p-4">
+              <div className="flex items-center gap-3">
                 <span
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-xl sm:h-10 sm:w-10"
-                  style={{ background: `color-mix(in srgb, ${meta.accent} 16%, transparent)`, color: meta.accent }}
+                  className="grid h-10 w-10 shrink-0 place-items-center rounded-xl"
+                  style={{
+                    background: `color-mix(in srgb, ${meta.accent} 15%, transparent)`,
+                    color: meta.accent,
+                    boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${meta.accent} 32%, transparent)`,
+                  }}
                 >
-                  <Icon className="h-4.5 w-4.5 sm:h-5 sm:w-5" strokeWidth={2} />
+                  <Icon className="h-5 w-5" strokeWidth={2} />
                 </span>
                 <div className="min-w-0">
                   <p className="truncate text-xs font-medium text-muted-foreground sm:text-sm">{meta.label}</p>
-                  <p className="text-base font-semibold tabular text-foreground sm:text-lg">
-                    {unread > 0 ? (
-                      <span>
-                        {unread} <span className="text-xs font-normal text-muted-foreground">sin leer</span>
-                      </span>
-                    ) : (
-                      <span className="text-sm font-normal text-muted-foreground">al día</span>
-                    )}
-                  </p>
+                  {unread > 0 ? (
+                    <p className="text-base font-semibold tabular text-foreground sm:text-lg">
+                      {unread} <span className="text-xs font-normal text-muted-foreground">sin leer</span>
+                    </p>
+                  ) : (
+                    <p className="text-sm font-medium text-muted-foreground">Al día</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -149,15 +145,13 @@ export function ComunicacionesView({ conversations: initial }: { conversations: 
         })}
       </div>
 
-      {/* Zonas 2 y 3 */}
-      <div className="grid gap-4 lg:grid-cols-[330px_1fr]">
+      {/* Zonas 2 y 3 — llenan el alto restante */}
+      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[330px_1fr]">
         {/* Lista de conversaciones */}
-        <div className={cn("lg:block", mobileChat && "hidden")}>
-          <div className="overflow-hidden rounded-2xl glass shadow-layered">
-            <ul className="divide-y divide-border">
+        <div className={cn("min-h-0 lg:block", mobileChat && "hidden")}>
+          <div className="flex h-full flex-col overflow-hidden rounded-2xl glass shadow-layered">
+            <ul className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
               {convs.map((c) => {
-                const meta = CHANNELS[c.channel];
-                const Icon = meta.Icon;
                 const isActive = c.id === active?.id;
                 const last = c.messages[c.messages.length - 1];
                 return (
@@ -169,23 +163,11 @@ export function ComunicacionesView({ conversations: initial }: { conversations: 
                         isActive ? "bg-[color-mix(in_srgb,var(--navy)_12%,transparent)]" : "hover:bg-muted/50",
                       )}
                     >
-                      {isActive && (
-                        <span aria-hidden className="absolute inset-y-0 left-0 w-0.5 bg-gold" />
-                      )}
-                      <span className="relative shrink-0">
-                        <span className="grid h-11 w-11 place-items-center rounded-xl bg-navy font-display text-sm font-semibold text-gold ring-1 ring-[var(--gold)]/25">
-                          {initials(c.contact)}
-                        </span>
-                        <span
-                          className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full ring-2 ring-[var(--surface)]"
-                          style={{ background: meta.accent }}
-                        >
-                          <Icon className="h-3 w-3 text-white" strokeWidth={2.5} />
-                        </span>
-                      </span>
+                      {isActive && <span aria-hidden className="absolute inset-y-0 left-0 w-0.5 bg-gold" />}
+                      <ChannelAvatar nombre={c.contact} channel={c.channel} />
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center justify-between gap-2">
-                          <span className={cn("truncate text-sm", c.unread > 0 ? "font-semibold text-foreground" : "font-medium text-foreground")}>
+                          <span className={cn("truncate text-sm text-foreground", c.unread > 0 ? "font-semibold" : "font-medium")}>
                             {c.contact}
                           </span>
                           <span className="shrink-0 text-[11px] text-muted-foreground">{c.time}</span>
@@ -211,41 +193,43 @@ export function ComunicacionesView({ conversations: initial }: { conversations: 
         </div>
 
         {/* Chat abierto */}
-        <div className={cn("lg:block", !mobileChat && "hidden")}>
+        <div className={cn("min-h-0 lg:block", !mobileChat && "hidden")}>
           {active ? (
-            <div className="flex h-[68dvh] min-h-[460px] flex-col overflow-hidden rounded-2xl glass shadow-layered">
+            <div className="flex h-full flex-col overflow-hidden rounded-2xl glass shadow-layered">
               <ChatHeader conv={active} onBack={() => setMobileChat(false)} />
 
-              {/* Hilo de mensajes */}
-              <div ref={threadRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4 sm:px-5">
-                <AnimatePresence initial={false}>
-                  {active.messages.map((m, i) => (
-                    <motion.div
-                      key={`${active.id}-${i}`}
-                      initial={reduced ? false : { opacity: 0, y: 8, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{ type: "spring", stiffness: 320, damping: 28 }}
-                      className={cn("flex", m.from === "out" ? "justify-end" : "justify-start")}
-                    >
-                      <div
-                        className={cn(
-                          "max-w-[82%] rounded-2xl px-3.5 py-2 text-sm shadow-sm sm:max-w-[70%]",
-                          m.from === "out"
-                            ? "rounded-br-md bg-navy text-navy-foreground"
-                            : "rounded-bl-md bg-surface-2 text-foreground ring-1 ring-border",
-                        )}
+              {/* Hilo: scroll propio, mensajes anclados al fondo */}
+              <div ref={threadRef} className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">
+                <div className="flex min-h-full flex-col justify-end gap-2.5">
+                  <AnimatePresence initial={false}>
+                    {active.messages.map((m, i) => (
+                      <motion.div
+                        key={`${active.id}-${i}`}
+                        initial={reduced ? false : { opacity: 0, y: 8, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ type: "spring", stiffness: 320, damping: 28 }}
+                        className={cn("flex", m.from === "out" ? "justify-end" : "justify-start")}
                       >
-                        <p className="whitespace-pre-wrap leading-relaxed">{m.text}</p>
-                        <p className={cn("mt-1 text-[10px]", m.from === "out" ? "text-navy-foreground/60" : "text-muted-foreground")}>
-                          {m.time}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                        <div
+                          className={cn(
+                            "max-w-[82%] px-4 py-2.5 text-sm sm:max-w-[68%]",
+                            m.from === "out"
+                              ? "rounded-2xl rounded-br-md bg-navy text-navy-foreground shadow-[0_4px_14px_rgba(15,23,42,0.18)]"
+                              : "rounded-2xl rounded-bl-md bg-surface text-foreground ring-1 ring-border shadow-[0_2px_8px_rgba(15,23,42,0.08)]",
+                          )}
+                        >
+                          <p className="whitespace-pre-wrap leading-relaxed">{m.text}</p>
+                          <p className={cn("mt-1 text-[10px]", m.from === "out" ? "text-navy-foreground/60" : "text-muted-foreground")}>
+                            {m.time}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
               </div>
 
-              {/* Compositor: respuestas rápidas + IA + envío */}
+              {/* Compositor anclado al fondo */}
               <Composer
                 key={active.id}
                 conv={active}
@@ -262,7 +246,7 @@ export function ComunicacionesView({ conversations: initial }: { conversations: 
               />
             </div>
           ) : (
-            <div className="grid h-[460px] place-items-center rounded-2xl glass shadow-layered text-sm text-muted-foreground">
+            <div className="grid h-full place-items-center rounded-2xl glass shadow-layered text-sm text-muted-foreground">
               Selecciona una conversación.
             </div>
           )}
@@ -272,12 +256,31 @@ export function ComunicacionesView({ conversations: initial }: { conversations: 
   );
 }
 
+/* ── Avatar con badge de canal refinado ─────────────────────────────────── */
+function ChannelAvatar({ nombre, channel }: { nombre: string; channel: Channel }) {
+  const meta = CHANNELS[channel];
+  const Icon = meta.Icon;
+  return (
+    <span className="relative shrink-0">
+      <span className="grid h-11 w-11 place-items-center rounded-xl bg-navy font-display text-sm font-semibold text-gold ring-1 ring-[var(--gold)]/25">
+        {initials(nombre)}
+      </span>
+      <span
+        className="absolute -bottom-0.5 -right-0.5 grid h-4 w-4 place-items-center rounded-full ring-2 ring-[var(--surface)]"
+        style={{ background: meta.accent }}
+      >
+        <Icon className="h-2.5 w-2.5 text-white" strokeWidth={2.75} />
+      </span>
+    </span>
+  );
+}
+
 /* ── Cabecera del chat con vínculo a cliente/caso real ───────────────────── */
 function ChatHeader({ conv, onBack }: { conv: Conversation; onBack: () => void }) {
   const meta = CHANNELS[conv.channel];
   const Icon = meta.Icon;
   return (
-    <div className="flex items-center gap-3 border-b border-border px-3.5 py-3 sm:px-5">
+    <div className="flex shrink-0 items-center gap-3 border-b border-border bg-background/30 px-3.5 py-3 sm:px-5">
       <button
         onClick={onBack}
         aria-label="Volver a la lista"
@@ -286,9 +289,7 @@ function ChatHeader({ conv, onBack }: { conv: Conversation; onBack: () => void }
         <ArrowLeft className="h-5 w-5" />
       </button>
 
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-navy font-display text-sm font-semibold text-gold ring-1 ring-[var(--gold)]/25">
-        {initials(conv.contact)}
-      </span>
+      <ChannelAvatar nombre={conv.contact} channel={conv.channel} />
 
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-foreground">{conv.contact}</p>
@@ -299,7 +300,7 @@ function ChatHeader({ conv, onBack }: { conv: Conversation; onBack: () => void }
       </div>
 
       {/* Detalle monster: vínculo a la ficha real del cliente / caso */}
-      {conv.clienteId ? (
+      {conv.clienteId && (
         <div className="hidden flex-wrap items-center justify-end gap-1.5 sm:flex">
           <Link
             href={`/clientes/${conv.clienteId}`}
@@ -318,7 +319,7 @@ function ChatHeader({ conv, onBack }: { conv: Conversation; onBack: () => void }
             </Link>
           )}
         </div>
-      ) : null}
+      )}
     </div>
   );
 }
@@ -344,7 +345,7 @@ function Composer({
   inputRef: React.RefObject<HTMLTextAreaElement | null>;
 }) {
   return (
-    <div className="border-t border-border bg-background/40 px-3 py-3 sm:px-4">
+    <div className="shrink-0 border-t border-border bg-background/40 px-3 py-3 sm:px-4">
       {/* Mobile: vínculo a cliente cuando la cabecera lo oculta */}
       {conv.clienteId && (
         <div className="mb-2 flex items-center gap-1.5 sm:hidden">
