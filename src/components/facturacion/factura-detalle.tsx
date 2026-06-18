@@ -63,13 +63,21 @@ export function FacturaDetalle({ factura }: { factura: FacturaConVinculos }) {
                 </tr>
               </thead>
               <tbody>
-                {factura.conceptos.map((c, i) => (
-                  <tr key={i} className="border-b border-border last:border-0">
-                    <td className="px-5 py-3 text-foreground">{c.descripcion}</td>
-                    <td className="px-3 py-3 text-center tabular text-muted-foreground">{c.cantidad}</td>
-                    <td className="px-5 py-3 text-right tabular text-foreground">{formatRD(c.cantidad * c.precio)}</td>
+                {factura.conceptos.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="px-5 py-8 text-center text-sm text-muted-foreground">
+                      Esta factura no tiene conceptos registrados.
+                    </td>
                   </tr>
-                ))}
+                ) : (
+                  factura.conceptos.map((c, i) => (
+                    <tr key={i} className="border-b border-border last:border-0">
+                      <td className="px-5 py-3 text-foreground">{c.descripcion}</td>
+                      <td className="px-3 py-3 text-center tabular text-muted-foreground">{c.cantidad}</td>
+                      <td className="px-5 py-3 text-right tabular text-foreground">{formatRD(c.cantidad * c.precio)}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
             <div className="space-y-1.5 border-t border-border bg-muted/40 px-5 py-4 text-sm">

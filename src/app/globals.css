@@ -56,6 +56,10 @@
   /* Anillos / glow */
   --ring: rgba(169, 132, 43, 0.55);
 
+  /* Brillo (sheen) de tarjetas/barras — tokenizado para que sea visible en
+     crema sin parecer plano. */
+  --sheen: rgba(255, 255, 255, 0.42);
+
   /* Gravedad — crítico (ámbar/coral cálido, profundo para contraste en crema) */
   --critical: #b45309;
   --critical-bright: #d97706;
@@ -107,6 +111,9 @@
   --aurora-3: rgba(47, 96, 152, 0.28);
 
   --ring: rgba(212, 175, 55, 0.55);
+
+  /* Brillo (sheen) sutil sobre superficies oscuras. */
+  --sheen: rgba(255, 255, 255, 0.12);
 
   /* Gravedad — crítico (ámbar/coral que brilla en lo oscuro) */
   --critical: #f0a55e;

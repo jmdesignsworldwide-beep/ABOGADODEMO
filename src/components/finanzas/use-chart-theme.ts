@@ -36,15 +36,16 @@ const DARK: ChartTheme = {
 };
 
 const LIGHT: ChartTheme = {
-  ingresos: "#047857",
-  egresos: "#c2410c",
-  balance: "#a07d28",
+  ingresos: "#059669",
+  egresos: "#ea580c",
+  balance: "#b7791f",
   axis: "#585341",
   grid: "rgba(40,52,78,0.10)",
   tooltipBg: "rgba(252,248,240,0.98)",
   tooltipBorder: "rgba(164,126,40,0.28)",
   text: "#19223a",
-  categoria: ["#1b3a5b", "#a07d28", "#047857", "#c2410c", "#2f6098", "#6d4ad1", "#b45309", "#be123c", "#5b6472"],
+  // Paleta diferenciada y nítida sobre crema (sin dos dorados que se confundan).
+  categoria: ["#1b3a5b", "#b7791f", "#059669", "#ea580c", "#2f6098", "#7c3aed", "#0e7490", "#be123c", "#6b7280"],
 };
 
 export function useChartTheme(): ChartTheme {

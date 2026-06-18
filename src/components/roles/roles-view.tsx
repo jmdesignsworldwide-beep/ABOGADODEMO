@@ -50,7 +50,36 @@ export function RolesView() {
       {/* Matriz de permisos */}
       <div className="rounded-2xl glass p-2 shadow-layered sm:p-4">
         <h3 className="px-2 pb-3 pt-2 font-display text-lg font-semibold text-foreground">Matriz de permisos</h3>
-        <div className="overflow-x-auto">
+
+        {/* Móvil: reflujo a tarjetas verticales legibles (sin scroll horizontal). */}
+        <div className="space-y-3 px-1 sm:hidden">
+          {ROLES.map((r) => {
+            const Icon = r.icon;
+            return (
+              <div key={r.nombre} className="rounded-xl border border-border bg-surface/60 p-3">
+                <div className="mb-2.5 flex items-center gap-2">
+                  <span className="grid h-7 w-7 place-items-center rounded-lg bg-[color-mix(in_srgb,var(--gold)_14%,transparent)] text-gold">
+                    <Icon className="h-4 w-4" strokeWidth={1.75} />
+                  </span>
+                  <span className="font-display text-sm font-semibold text-foreground">{r.nombre}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {MODULOS.map((m, i) => (
+                    <div key={m} className="flex items-center justify-between gap-1.5 rounded-lg bg-muted/40 px-2 py-1.5">
+                      <span className="min-w-0 truncate text-[11px] text-muted-foreground">{m}</span>
+                      <span className={cn("shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold", NIVEL[r.permisos[i]].cls)}>
+                        {NIVEL[r.permisos[i]].label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Tablet / escritorio: tabla completa (con scroll horizontal si hace falta). */}
+        <div className="hidden overflow-x-auto sm:block">
           <table className="w-full border-separate border-spacing-0 text-sm">
             <thead>
               <tr>
