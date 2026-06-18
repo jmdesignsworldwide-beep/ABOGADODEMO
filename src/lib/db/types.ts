@@ -116,6 +116,45 @@ export type DocumentoConVinculos = Documento & {
   cliente: Pick<Cliente, "id" | "nombre"> | null;
 };
 
+export type TipoNCF = "B01" | "B02";
+export type FacturaEstado = "pendiente" | "pagada" | "anulada";
+
+export interface ConceptoLinea {
+  descripcion: string;
+  cantidad: number;
+  precio: number;
+}
+
+export interface Factura {
+  id: string;
+  numero: string;
+  tipo_ncf: TipoNCF;
+  cliente_id: string;
+  caso_id: string | null;
+  conceptos: ConceptoLinea[];
+  subtotal: number;
+  itbis: number;
+  total: number;
+  estado: FacturaEstado;
+  fecha: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type FacturaConVinculos = Factura & {
+  cliente: Pick<Cliente, "id" | "nombre" | "tipo" | "tipo_documento" | "documento"> | null;
+  caso: Pick<Caso, "id" | "titulo"> | null;
+};
+
+export type FacturaInput = {
+  cliente_id: string;
+  caso_id: string | null;
+  tipo_ncf: TipoNCF;
+  conceptos: ConceptoLinea[];
+  estado: FacturaEstado;
+  fecha: string;
+};
+
 /* Entradas para crear/editar (sin campos gestionados por la BD) */
 export type ClienteInput = Omit<Cliente, "id" | "created_at" | "updated_at">;
 export type CasoInput = Omit<Caso, "id" | "created_at" | "updated_at">;
@@ -204,4 +243,21 @@ export const TIPO_DOCUMENTO_LEGAL_LABEL: Record<TipoDocumentoLegal, string> = {
   factura: "Factura",
   identificacion: "Identificación",
   otro: "Otro",
+};
+
+export const TIPO_NCF_LABEL: Record<TipoNCF, string> = {
+  B01: "Crédito Fiscal (B01)",
+  B02: "Consumidor Final (B02)",
+};
+
+export const FACTURA_ESTADO_LABEL: Record<FacturaEstado, string> = {
+  pendiente: "Pendiente",
+  pagada: "Pagada",
+  anulada: "Anulada",
+};
+
+export const FACTURA_ESTADO_STYLE: Record<FacturaEstado, string> = {
+  pendiente: "bg-[color-mix(in_srgb,var(--gold)_18%,transparent)] text-gold",
+  pagada: "bg-emerald-500/15 text-emerald-500",
+  anulada: "bg-[var(--critical-soft)] text-critical",
 };
