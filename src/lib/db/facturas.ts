@@ -33,3 +33,24 @@ export async function getFacturaById(id: string): Promise<FacturaConVinculos | n
   if (!data) return null;
   return shape(data as Row);
 }
+
+export type FacturaResumen = {
+  id: string;
+  numero: string;
+  total: number;
+  estado: Factura["estado"];
+  fecha: string;
+};
+
+/** Facturas de un cliente (para el resumen financiero de su ficha). */
+export async function getFacturasByCliente(clienteId: string): Promise<FacturaResumen[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("facturas")
+    .select("id, numero, total, estado, fecha")
+    .eq("cliente_id", clienteId)
+    .order("fecha", { ascending: false });
+  if (error) throw new Error(error.message);
+  return ((data as FacturaResumen[] | null) ?? []).map((f) => ({ ...f, total: Number(f.total) }));
+}
+

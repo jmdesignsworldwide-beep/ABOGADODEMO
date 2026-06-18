@@ -13,6 +13,7 @@ import { IngresosEgresosChart, EgresosCategoriaChart, HonorariosChart } from "./
 import { EgresoFormModal } from "./egreso-form-modal";
 import { EgresoDetalleModal } from "./egreso-detalle-modal";
 import { DesgloseModal, type DesgloseRow } from "./desglose-modal";
+import { ClientesRanking } from "./clientes-ranking";
 import { eliminarEgreso } from "@/app/(app)/finanzas/actions";
 import { formatRD } from "@/lib/facturas";
 import { CATEGORIA_EGRESO_LABEL, type CategoriaEgreso, type Egreso } from "@/lib/db/types";
@@ -34,7 +35,7 @@ const egresoRows = (es: Egreso[]): DesgloseRow[] => es.map((e) => ({ kind: "egre
 
 export function FinanzasView({ data }: { data: FinancieroData }) {
   const router = useRouter();
-  const { kpis, serie, porCategoria, honorarios, movimientos, mesActual, facturasPagadas, facturasPendientes, egresos } = data;
+  const { kpis, serie, porCategoria, honorarios, movimientos, mesActual, facturasPagadas, facturasPendientes, egresos, clientesRanking } = data;
 
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Egreso | null>(null);
@@ -166,6 +167,9 @@ export function FinanzasView({ data }: { data: FinancieroData }) {
           </div>
         </div>
       </div>
+
+      {/* Ranking de clientes por ingreso */}
+      <ClientesRanking ranking={clientesRanking} />
 
       {/* Modales */}
       <DesgloseModal

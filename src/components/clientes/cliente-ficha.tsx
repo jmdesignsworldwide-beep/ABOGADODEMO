@@ -24,6 +24,8 @@ import { Stagger, StaggerItem } from "@/components/ui/stagger";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ClienteFormModal } from "./cliente-form-modal";
 import { DocumentosSection } from "@/components/documentos/documentos-section";
+import { ResumenFinanciero } from "./resumen-financiero";
+import type { FacturaResumen } from "@/lib/db/facturas";
 import { deleteCliente } from "@/app/(app)/clientes/actions";
 import type { ClienteFicha as Ficha } from "@/lib/db/clientes";
 import {
@@ -34,7 +36,7 @@ import {
   type DocumentoConVinculos,
 } from "@/lib/db/types";
 
-export function ClienteFicha({ ficha, documentos }: { ficha: Ficha; documentos: DocumentoConVinculos[] }) {
+export function ClienteFicha({ ficha, documentos, facturas }: { ficha: Ficha; documentos: DocumentoConVinculos[]; facturas: FacturaResumen[] }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -103,6 +105,8 @@ export function ClienteFicha({ ficha, documentos }: { ficha: Ficha; documentos: 
               ))}
             </dl>
           </div>
+
+          <ResumenFinanciero facturas={facturas} />
 
           {ficha.notas && (
             <div className="rounded-2xl glass p-5 shadow-layered">

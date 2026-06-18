@@ -8,6 +8,8 @@ export type Movimiento =
   | { tipo: "ingreso"; id: string; facturaId: string; etiqueta: string; ref: string; monto: number; fecha: string }
   | { tipo: "egreso"; id: string; egreso: Egreso };
 
+export type ClienteRanking = { clienteId: string; nombre: string; pagado: number; pendiente: number };
+
 export type FinancieroData = {
   mesActual: string; // YYYY-MM
   kpis: { ingresosMes: number; egresosMes: number; balanceMes: number; honorariosPendientes: number };
@@ -15,6 +17,7 @@ export type FinancieroData = {
   porCategoria: { categoria: CategoriaEgreso; monto: number }[];
   honorarios: { cobrado: number; pendiente: number };
   movimientos: Movimiento[];
+  clientesRanking: ClienteRanking[];
   // Datos crudos para los desgloses clickeables
   facturasPagadas: FacturaLite[];
   facturasPendientes: FacturaLite[];
@@ -30,13 +33,13 @@ export async function getFinanciero(): Promise<FinancieroData> {
   const mesActual = now.toISOString().slice(0, 7);
 
   const [facturasRes, egresosRes] = await Promise.all([
-    admin.from("facturas").select("id, numero, total, estado, fecha, clientes(nombre)"),
+    admin.from("facturas").select("id, numero, total, estado, fecha, cliente_id, clientes(nombre)"),
     admin.from("egresos").select("*").order("fecha", { ascending: false }),
   ]);
   if (facturasRes.error) throw new Error(facturasRes.error.message);
   if (egresosRes.error) throw new Error(egresosRes.error.message);
 
-  type FRow = { id: string; numero: string; total: number; estado: string; fecha: string; clientes: { nombre: string } | null };
+  type FRow = { id: string; numero: string; total: number; estado: string; fecha: string; cliente_id: string | null; clientes: { nombre: string } | null };
   const facturas = (facturasRes.data as unknown as FRow[] | null) ?? [];
   const egresos = (egresosRes.data as Egreso[] | null) ?? [];
 
@@ -63,6 +66,19 @@ export async function getFinanciero(): Promise<FinancieroData> {
     });
   }
 
+  // Ranking de clientes por monto pagado (con su pendiente)
+  const rankMap = new Map<string, ClienteRanking>();
+  for (const f of facturas) {
+    if (f.estado === "anulada" || !f.cliente_id) continue;
+    const r = rankMap.get(f.cliente_id) ?? { clienteId: f.cliente_id, nombre: f.clientes?.nombre ?? "—", pagado: 0, pendiente: 0 };
+    if (f.estado === "pagada") r.pagado += Number(f.total);
+    else if (f.estado === "pendiente") r.pendiente += Number(f.total);
+    rankMap.set(f.cliente_id, r);
+  }
+  const clientesRanking = [...rankMap.values()]
+    .filter((r) => r.pagado > 0 || r.pendiente > 0)
+    .sort((a, b) => b.pagado - a.pagado || b.pendiente - a.pendiente);
+
   const catMap = new Map<CategoriaEgreso, number>();
   for (const e of egresos) catMap.set(e.categoria, (catMap.get(e.categoria) ?? 0) + Number(e.monto));
   const porCategoria = [...catMap.entries()].map(([categoria, monto]) => ({ categoria, monto })).sort((a, b) => b.monto - a.monto);
@@ -84,6 +100,7 @@ export async function getFinanciero(): Promise<FinancieroData> {
     porCategoria,
     honorarios: { cobrado, pendiente: honorariosPendientes },
     movimientos,
+    clientesRanking,
     facturasPagadas,
     facturasPendientes,
     egresos,
