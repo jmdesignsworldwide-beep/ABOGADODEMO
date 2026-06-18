@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireActiveUser } from "@/lib/auth";
 import type { AudienciaInput } from "@/lib/db/types";
 
 export type ActionResult = { ok: true; id?: string } | { ok: false; error: string };
@@ -33,6 +34,7 @@ function sanitize(input: AudienciaInput): AudienciaInput | string {
 }
 
 export async function createAudiencia(input: AudienciaInput): Promise<ActionResult> {
+  await requireActiveUser();
   const clean = sanitize(input);
   if (typeof clean === "string") return { ok: false, error: clean };
   const supabase = createAdminClient();
@@ -44,6 +46,7 @@ export async function createAudiencia(input: AudienciaInput): Promise<ActionResu
 }
 
 export async function updateAudiencia(id: string, input: AudienciaInput): Promise<ActionResult> {
+  await requireActiveUser();
   const clean = sanitize(input);
   if (typeof clean === "string") return { ok: false, error: clean };
   const supabase = createAdminClient();
@@ -55,6 +58,7 @@ export async function updateAudiencia(id: string, input: AudienciaInput): Promis
 }
 
 export async function deleteAudiencia(id: string): Promise<ActionResult> {
+  await requireActiveUser();
   const supabase = createAdminClient();
   const { error } = await supabase.from("audiencias_citas").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };

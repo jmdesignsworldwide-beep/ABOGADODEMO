@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireActiveUser } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 
 export type ActionResult = { ok: true; id?: string } | { ok: false; error: string };
@@ -13,6 +14,7 @@ export async function guardarContrato(input: {
   cliente_id: string | null;
   caso_id: string | null;
 }): Promise<ActionResult> {
+  await requireActiveUser();
   const titulo = input.titulo?.trim();
   const contenido = input.contenido?.trim();
   if (!titulo) return { ok: false, error: "El título es obligatorio." };
@@ -40,6 +42,7 @@ export async function guardarContrato(input: {
 }
 
 export async function eliminarContrato(id: string): Promise<ActionResult> {
+  await requireActiveUser();
   const admin = createAdminClient();
   const { error } = await admin.from("documentos_generados").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };
