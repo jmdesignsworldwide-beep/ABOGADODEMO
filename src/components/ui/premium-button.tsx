@@ -30,16 +30,25 @@ const sizes: Record<Size, string> = {
   lg: "h-12 px-7 text-base",
 };
 
+/* Botón primario unificado del sistema: marino sólido, texto blanco (500) e
+   ícono dorado luminoso. "primary" y "gold" comparten este look para que TODA
+   acción primaria (crear/nuevo, emitir, guardar…) se vea idéntica. Los
+   secundarios (outline/ghost) conservan su jerarquía distinta. */
+const primaryLook =
+  "bg-navy text-navy-foreground font-medium hover:bg-navy-strong shadow-layered hover:glow-navy";
+
 const variants: Record<Variant, string> = {
-  primary:
-    "bg-navy text-navy-foreground hover:bg-navy-strong shadow-layered hover:glow-navy",
-  gold:
-    "text-gold-foreground shadow-layered hover:glow-gold " +
-    "bg-[linear-gradient(135deg,var(--gold-bright),var(--gold))]",
+  primary: primaryLook,
+  gold: primaryLook,
   outline:
     "border border-[var(--gold)] text-gold hover:bg-[color-mix(in_srgb,var(--gold)_12%,transparent)]",
   ghost: "text-foreground/80 hover:bg-muted hover:text-foreground",
 };
+
+/** ¿La variante lleva ícono dorado luminoso? (solo los primarios marino). */
+function hasGoldIcon(variant: Variant): boolean {
+  return variant === "primary" || variant === "gold";
+}
 
 /**
  * PremiumButton — botón con micro-interacción (press) y estado de carga.
@@ -63,6 +72,7 @@ export const PremiumButton = forwardRef<HTMLButtonElement, PremiumButtonProps>(
     ref,
   ) => {
     const reduced = useReducedMotion();
+    const goldIcon = hasGoldIcon(variant);
     return (
       <motion.button
         ref={ref}
@@ -74,9 +84,13 @@ export const PremiumButton = forwardRef<HTMLButtonElement, PremiumButtonProps>(
         {...props}
       >
         {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-        {!loading && leftIcon}
+        {!loading && leftIcon && (
+          <span className={cn("inline-flex shrink-0", goldIcon && "text-gold-on-navy")}>{leftIcon}</span>
+        )}
         <span className="relative">{children}</span>
-        {!loading && rightIcon}
+        {!loading && rightIcon && (
+          <span className={cn("inline-flex shrink-0", goldIcon && "text-gold-on-navy")}>{rightIcon}</span>
+        )}
       </motion.button>
     );
   },
