@@ -54,7 +54,7 @@ export function ContratoDetalle({ contrato }: { contrato: ContratoConVinculos })
             <div className="rounded-2xl glass p-5 shadow-layered">
               <h3 className="font-display text-lg font-semibold text-foreground">Cliente</h3>
               <Link href={`/clientes/${contrato.cliente.id}`} className="group mt-3 flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-muted/60">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-navy text-gold"><User className="h-4 w-4" /></span>
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-navy text-gold-on-navy"><User className="h-4 w-4" /></span>
                 <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">{contrato.cliente.nombre}</span>
                 <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               </Link>

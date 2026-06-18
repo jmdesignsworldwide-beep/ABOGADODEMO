@@ -262,7 +262,7 @@ function ChannelAvatar({ nombre, channel }: { nombre: string; channel: Channel }
   const Icon = meta.Icon;
   return (
     <span className="relative shrink-0">
-      <span className="grid h-11 w-11 place-items-center rounded-xl bg-navy font-display text-sm font-semibold text-gold ring-1 ring-[var(--gold)]/25">
+      <span className="grid h-11 w-11 place-items-center rounded-xl bg-navy font-display text-sm font-semibold text-gold-on-navy ring-1 ring-[var(--gold-on-navy)]/25">
         {initials(nombre)}
       </span>
       <span
@@ -344,6 +344,15 @@ function Composer({
   aiLoading: boolean;
   inputRef: React.RefObject<HTMLTextAreaElement | null>;
 }) {
+  // Autoexpandible: la caja crece con el contenido hasta un máximo (~5 líneas)
+  // y luego hace scroll interno, para no empujar el chat sin control.
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 128)}px`;
+  }, [draft, inputRef]);
+
   return (
     <div className="shrink-0 border-t border-border bg-background/40 px-3 py-3 sm:px-4">
       {/* Mobile: vínculo a cliente cuando la cabecera lo oculta */}
@@ -407,14 +416,14 @@ function Composer({
           }}
           rows={1}
           placeholder="Escribe un mensaje…"
-          className="max-h-32 min-h-[2.75rem] flex-1 resize-none rounded-xl border border-border bg-background/60 px-3.5 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--ring)]"
+          className="max-h-32 min-h-[2.75rem] flex-1 resize-none overflow-y-auto rounded-xl border border-border bg-background/60 px-3.5 py-2.5 text-sm leading-relaxed text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--ring)]"
         />
         <button
           onClick={onSend}
           disabled={!draft.trim()}
           aria-label="Enviar mensaje"
           className={cn(
-            "grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-navy text-gold ring-1 ring-[var(--gold)]/30 transition-all",
+            "grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-navy text-gold-on-navy ring-1 ring-[var(--gold-on-navy)]/30 transition-all",
             draft.trim() ? "hover:glow-gold" : "cursor-not-allowed opacity-50",
           )}
         >

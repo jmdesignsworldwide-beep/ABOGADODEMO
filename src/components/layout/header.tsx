@@ -24,7 +24,7 @@ export function Header({
         <ThemeToggle />
 
         <div className="flex items-center gap-2.5 rounded-xl glass py-1.5 pl-1.5 pr-3">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-navy font-display text-sm font-semibold text-gold">
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-navy font-display text-sm font-semibold text-gold-on-navy">
             {initials(username)}
           </span>
           <span className="leading-tight">

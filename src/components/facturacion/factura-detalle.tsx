@@ -108,7 +108,7 @@ export function FacturaDetalle({ factura }: { factura: FacturaConVinculos }) {
             <h3 className="font-display text-lg font-semibold text-foreground">Cliente</h3>
             {factura.cliente ? (
               <Link href={`/clientes/${factura.cliente.id}`} className="group mt-3 flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-muted/60">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-navy text-sm font-semibold text-gold"><User className="h-4 w-4" /></span>
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-navy text-sm font-semibold text-gold-on-navy"><User className="h-4 w-4" /></span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-foreground">{factura.cliente.nombre}</p>
                   {factura.cliente.documento && <p className="truncate text-xs tabular text-muted-foreground">{(factura.cliente.tipo_documento ?? "").toUpperCase()}: {factura.cliente.documento}</p>}
