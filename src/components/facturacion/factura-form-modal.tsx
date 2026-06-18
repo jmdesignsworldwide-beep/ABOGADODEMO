@@ -140,7 +140,7 @@ export function FacturaFormModal({
           </div>
           <div className="space-y-2">
             {conceptos.map((c, i) => (
-              <div key={i} className="flex gap-2">
+              <div key={i} className="flex flex-col gap-2 sm:flex-row sm:items-start">
                 <Input
                   value={c.descripcion}
                   onChange={(e) => setLinea(i, { descripcion: e.target.value })}
@@ -148,33 +148,38 @@ export function FacturaFormModal({
                   className="flex-1"
                   aria-label={`Descripción línea ${i + 1}`}
                 />
-                <Input
-                  type="number"
-                  min={1}
-                  value={c.cantidad || ""}
-                  onChange={(e) => setLinea(i, { cantidad: Number(e.target.value) })}
-                  className="w-16 text-center"
-                  aria-label="Cantidad"
-                />
-                <Input
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  value={c.precio || ""}
-                  onChange={(e) => setLinea(i, { precio: Number(e.target.value) })}
-                  placeholder="Precio"
-                  className="w-28 tabular"
-                  aria-label="Precio"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeLinea(i)}
-                  disabled={conceptos.length === 1}
-                  aria-label="Quitar línea"
-                  className="grid h-11 w-10 shrink-0 place-items-center rounded-xl text-muted-foreground transition-colors hover:bg-[var(--critical-soft)] hover:text-critical disabled:opacity-40"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                {/* En móvil cantidad + precio + eliminar comparten su propia fila
+                    con ancho cómodo; en escritorio vuelven a la línea. */}
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    min={1}
+                    value={c.cantidad || ""}
+                    onChange={(e) => setLinea(i, { cantidad: Number(e.target.value) })}
+                    placeholder="Cant."
+                    className="w-full text-center sm:w-16"
+                    aria-label="Cantidad"
+                  />
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={c.precio || ""}
+                    onChange={(e) => setLinea(i, { precio: Number(e.target.value) })}
+                    placeholder="Precio"
+                    className="w-full tabular sm:w-28"
+                    aria-label="Precio"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeLinea(i)}
+                    disabled={conceptos.length === 1}
+                    aria-label="Quitar línea"
+                    className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-muted-foreground transition-colors hover:bg-[var(--critical-soft)] hover:text-critical disabled:opacity-40 sm:w-10"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>

@@ -52,7 +52,7 @@ export function MagneticCard({
   // Brillo que sigue al cursor (todos los hooks a nivel superior).
   const sheenX = useTransform(px, [-0.5, 0.5], ["0%", "100%"]);
   const sheenY = useTransform(py, [-0.5, 0.5], ["0%", "100%"]);
-  const sheen = useMotionTemplate`radial-gradient(380px circle at ${sheenX} ${sheenY}, rgba(255,255,255,0.10), transparent 60%)`;
+  const sheen = useMotionTemplate`radial-gradient(380px circle at ${sheenX} ${sheenY}, var(--sheen), transparent 60%)`;
 
   const enabled = interactive && !reduced;
 

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, FolderOpen, Info, SendHorizonal, Sparkles, UserRound } from "lucide-react";
+import { ArrowLeft, FolderOpen, Inbox, Info, SendHorizonal, Sparkles, UserRound } from "lucide-react";
 import {
   CHANNELS,
   CHANNEL_ORDER,
@@ -117,26 +117,26 @@ export function ComunicacionesView({ conversations: initial }: { conversations: 
           const unread = unreadByChannel[ch];
           const Icon = meta.Icon;
           return (
-            <div key={ch} className="rounded-2xl glass shadow-layered p-3.5 sm:p-4">
-              <div className="flex items-center gap-3">
+            <div key={ch} className="rounded-2xl glass shadow-layered p-3 sm:p-4">
+              <div className="flex flex-col items-center gap-2 text-center sm:flex-row sm:items-center sm:gap-3 sm:text-left">
                 <span
-                  className="grid h-10 w-10 shrink-0 place-items-center rounded-xl"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-xl sm:h-10 sm:w-10"
                   style={{
                     background: `color-mix(in srgb, ${meta.accent} 15%, transparent)`,
                     color: meta.accent,
                     boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${meta.accent} 32%, transparent)`,
                   }}
                 >
-                  <Icon className="h-5 w-5" strokeWidth={2} />
+                  <Icon className="h-4.5 w-4.5 sm:h-5 sm:w-5" strokeWidth={2} />
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-xs font-medium text-muted-foreground sm:text-sm">{meta.label}</p>
+                  <p className="truncate text-[11px] font-medium text-muted-foreground sm:text-sm">{meta.label}</p>
                   {unread > 0 ? (
-                    <p className="text-base font-semibold tabular text-foreground sm:text-lg">
-                      {unread} <span className="text-xs font-normal text-muted-foreground">sin leer</span>
+                    <p className="text-sm font-semibold tabular text-foreground sm:text-lg">
+                      {unread} <span className="text-[11px] font-normal text-muted-foreground sm:text-xs">sin leer</span>
                     </p>
                   ) : (
-                    <p className="text-sm font-medium text-muted-foreground">Al día</p>
+                    <p className="text-xs font-medium text-muted-foreground sm:text-sm">Al día</p>
                   )}
                 </div>
               </div>
@@ -150,6 +150,17 @@ export function ComunicacionesView({ conversations: initial }: { conversations: 
         {/* Lista de conversaciones */}
         <div className={cn("min-h-0 lg:block", mobileChat && "hidden")}>
           <div className="flex h-full flex-col overflow-hidden rounded-2xl glass shadow-layered">
+            {convs.length === 0 ? (
+              <div className="grid flex-1 place-items-center p-6 text-center">
+                <div>
+                  <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[color-mix(in_srgb,var(--gold)_14%,transparent)] text-gold">
+                    <Inbox className="h-6 w-6" strokeWidth={1.5} />
+                  </span>
+                  <p className="mt-3 font-display text-base font-semibold text-foreground">Sin conversaciones</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Aquí aparecerán los mensajes de tus clientes.</p>
+                </div>
+              </div>
+            ) : (
             <ul className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
               {convs.map((c) => {
                 const isActive = c.id === active?.id;
@@ -189,6 +200,7 @@ export function ComunicacionesView({ conversations: initial }: { conversations: 
                 );
               })}
             </ul>
+            )}
           </div>
         </div>
 

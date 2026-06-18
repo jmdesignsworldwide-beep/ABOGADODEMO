@@ -52,7 +52,7 @@ export function ProgressBar({
           className="relative h-full rounded-full bg-[linear-gradient(90deg,var(--navy),var(--gold))]"
         >
           {/* Brillo en la punta */}
-          <span className="absolute right-0 top-0 h-full w-6 rounded-full bg-white/40 blur-[6px]" />
+          <span className="absolute right-0 top-0 h-full w-6 rounded-full bg-[var(--sheen)] blur-[6px]" />
         </motion.div>
       </div>
     </div>

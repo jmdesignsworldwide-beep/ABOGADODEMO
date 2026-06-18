@@ -108,7 +108,7 @@ export function PanelClient({
           <p className="mt-1 text-sm text-muted-foreground">Atajos del día a día.</p>
           <div className="mt-6 flex flex-col gap-3">
             <PremiumButton variant="gold" fullWidth onClick={() => router.push("/casos?nuevo=1")}>Nuevo caso</PremiumButton>
-            <PremiumButton variant="primary" fullWidth onClick={() => router.push("/clientes?nuevo=1")}>Registrar cliente</PremiumButton>
+            <PremiumButton variant="gold" fullWidth onClick={() => router.push("/clientes?nuevo=1")}>Registrar cliente</PremiumButton>
             <PremiumButton variant="outline" fullWidth onClick={() => router.push("/agenda?nuevo=1")}>Agendar audiencia</PremiumButton>
             <PremiumButton variant="ghost" fullWidth onClick={() => router.push("/facturacion")}>Ver facturación</PremiumButton>
           </div>
