@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Building2,
   Mail,
@@ -28,8 +28,9 @@ import { CLIENTE_TIPO_LABEL, type Cliente, type ClienteConConteo } from "@/lib/d
 
 export function ClientesView({ clientes }: { clientes: ClienteConConteo[] }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
-  const [creating, setCreating] = useState(false);
+  const [creating, setCreating] = useState(() => searchParams.get("nuevo") === "1");
   const [editing, setEditing] = useState<Cliente | null>(null);
   const [deleting, setDeleting] = useState<Cliente | null>(null);
 

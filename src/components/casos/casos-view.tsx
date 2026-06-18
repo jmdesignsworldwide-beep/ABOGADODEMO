@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Pencil, Plus, Scale, Search, Trash2, User } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { PremiumButton } from "@/components/ui/premium-button";
@@ -32,10 +32,11 @@ export function CasosView({
   clientes: Pick<Cliente, "id" | "nombre">[];
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
   const [estado, setEstado] = useState<CasoEstado | "todos">("todos");
   const [tipo, setTipo] = useState<CasoTipo | "todos">("todos");
-  const [creating, setCreating] = useState(false);
+  const [creating, setCreating] = useState(() => searchParams.get("nuevo") === "1");
   const [editing, setEditing] = useState<Caso | null>(null);
   const [deleting, setDeleting] = useState<Caso | null>(null);
 

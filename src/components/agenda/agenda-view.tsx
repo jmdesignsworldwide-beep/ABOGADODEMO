@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { CalendarDays, List, Plus } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
@@ -27,10 +27,11 @@ export function AgendaView({
   nowISO: string;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const now = new Date(nowISO);
   const [view, setView] = useState<View>("lista");
   const [selected, setSelected] = useState<AudienciaConCaso | null>(null);
-  const [creating, setCreating] = useState(false);
+  const [creating, setCreating] = useState(() => searchParams.get("nuevo") === "1");
   const [editing, setEditing] = useState<AudienciaConCaso | null>(null);
   const [deleting, setDeleting] = useState<AudienciaConCaso | null>(null);
 
