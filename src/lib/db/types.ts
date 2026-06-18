@@ -155,6 +155,36 @@ export type FacturaInput = {
   fecha: string;
 };
 
+export type CategoriaEgreso =
+  | "alquiler"
+  | "salarios"
+  | "servicios"
+  | "suministros"
+  | "impuestos"
+  | "honorarios_terceros"
+  | "marketing"
+  | "mantenimiento"
+  | "otros";
+
+export interface Egreso {
+  id: string;
+  concepto: string;
+  categoria: CategoriaEgreso;
+  monto: number;
+  fecha: string;
+  descripcion: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type EgresoInput = {
+  concepto: string;
+  categoria: CategoriaEgreso;
+  monto: number;
+  fecha: string;
+  descripcion: string | null;
+};
+
 /* Entradas para crear/editar (sin campos gestionados por la BD) */
 export type ClienteInput = Omit<Cliente, "id" | "created_at" | "updated_at">;
 export type CasoInput = Omit<Caso, "id" | "created_at" | "updated_at">;
@@ -260,4 +290,16 @@ export const FACTURA_ESTADO_STYLE: Record<FacturaEstado, string> = {
   pendiente: "bg-[color-mix(in_srgb,var(--gold)_18%,transparent)] text-gold",
   pagada: "bg-emerald-500/15 text-emerald-500",
   anulada: "bg-[var(--critical-soft)] text-critical",
+};
+
+export const CATEGORIA_EGRESO_LABEL: Record<CategoriaEgreso, string> = {
+  alquiler: "Alquiler",
+  salarios: "Salarios",
+  servicios: "Servicios",
+  suministros: "Suministros",
+  impuestos: "Impuestos",
+  honorarios_terceros: "Honorarios de terceros",
+  marketing: "Marketing",
+  mantenimiento: "Mantenimiento",
+  otros: "Otros",
 };

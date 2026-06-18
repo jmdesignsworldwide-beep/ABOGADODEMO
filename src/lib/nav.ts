@@ -3,6 +3,7 @@ import {
   FileStack,
   FileText,
   LayoutDashboard,
+  LineChart,
   Receipt,
   Scale,
   Users,
@@ -29,4 +30,5 @@ export const navItems: NavItem[] = [
   { label: "Agenda", href: "/agenda", icon: Calendar },
   { label: "Documentos", href: "/documentos", icon: FileText },
   { label: "Facturación", href: "/facturacion", icon: Receipt },
+  { label: "Control Financiero", href: "/finanzas", icon: LineChart },
 ];
