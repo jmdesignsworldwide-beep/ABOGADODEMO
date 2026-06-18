@@ -23,6 +23,7 @@ import { AudienciaCard } from "@/components/agenda/audiencia-card";
 import { AudienciaDetalleModal } from "@/components/agenda/audiencia-detalle-modal";
 import { AudienciaFormModal } from "@/components/agenda/audiencia-form-modal";
 import { DocumentosSection } from "@/components/documentos/documentos-section";
+import { ContratosSection } from "@/components/contratos/contratos-section";
 import { deleteCaso } from "@/app/(app)/casos/actions";
 import { deleteAudiencia } from "@/app/(app)/agenda/actions";
 import {
@@ -33,6 +34,7 @@ import {
   type AudienciaConCaso,
   type CasoConRelaciones,
   type Cliente,
+  type ContratoConVinculos,
   type DocumentoConVinculos,
 } from "@/lib/db/types";
 
@@ -41,12 +43,14 @@ export function CasoDetalle({
   clientes,
   audiencias,
   documentos,
+  contratos,
   nowISO,
 }: {
   caso: CasoConRelaciones;
   clientes: Pick<Cliente, "id" | "nombre">[];
   audiencias: Audiencia[];
   documentos: DocumentoConVinculos[];
+  contratos: ContratoConVinculos[];
   nowISO: string;
 }) {
   const router = useRouter();
@@ -210,6 +214,8 @@ export function CasoDetalle({
           </div>
 
           <DocumentosSection documentos={documentos} casoId={caso.id} contextoLabel="este caso" />
+
+          <ContratosSection contratos={contratos} generarHref={`/contratos?nuevo=1&caso=${caso.id}`} />
         </div>
       </div>
 

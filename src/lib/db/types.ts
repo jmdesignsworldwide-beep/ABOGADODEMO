@@ -303,3 +303,18 @@ export const CATEGORIA_EGRESO_LABEL: Record<CategoriaEgreso, string> = {
   mantenimiento: "Mantenimiento",
   otros: "Otros",
 };
+
+export interface DocumentoGenerado {
+  id: string;
+  plantilla: string;
+  titulo: string;
+  contenido: string;
+  cliente_id: string | null;
+  caso_id: string | null;
+  created_at: string;
+}
+
+export type ContratoConVinculos = DocumentoGenerado & {
+  cliente: Pick<Cliente, "id" | "nombre"> | null;
+  caso: Pick<Caso, "id" | "titulo"> | null;
+};

@@ -25,6 +25,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ClienteFormModal } from "./cliente-form-modal";
 import { DocumentosSection } from "@/components/documentos/documentos-section";
 import { ResumenFinanciero } from "./resumen-financiero";
+import { ContratosSection } from "@/components/contratos/contratos-section";
 import type { FacturaResumen } from "@/lib/db/facturas";
 import { deleteCliente } from "@/app/(app)/clientes/actions";
 import type { ClienteFicha as Ficha } from "@/lib/db/clientes";
@@ -33,10 +34,11 @@ import {
   CASO_ESTADO_STYLE,
   CASO_TIPO_LABEL,
   CLIENTE_TIPO_LABEL,
+  type ContratoConVinculos,
   type DocumentoConVinculos,
 } from "@/lib/db/types";
 
-export function ClienteFicha({ ficha, documentos, facturas }: { ficha: Ficha; documentos: DocumentoConVinculos[]; facturas: FacturaResumen[] }) {
+export function ClienteFicha({ ficha, documentos, facturas, contratos }: { ficha: Ficha; documentos: DocumentoConVinculos[]; facturas: FacturaResumen[]; contratos: ContratoConVinculos[] }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -118,6 +120,8 @@ export function ClienteFicha({ ficha, documentos, facturas }: { ficha: Ficha; do
           )}
 
           <DocumentosSection documentos={documentos} clienteId={ficha.id} contextoLabel="este cliente" />
+
+          <ContratosSection contratos={contratos} generarHref={`/contratos?nuevo=1&cliente=${ficha.id}`} />
         </div>
 
         {/* Casos del cliente */}
